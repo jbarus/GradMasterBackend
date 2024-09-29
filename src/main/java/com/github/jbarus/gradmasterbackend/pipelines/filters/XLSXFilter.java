@@ -1,4 +1,4 @@
-package com.github.jbarus.gradmasterbackend.Pipelines.Filters;
+package com.github.jbarus.gradmasterbackend.pipelines.filters;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 

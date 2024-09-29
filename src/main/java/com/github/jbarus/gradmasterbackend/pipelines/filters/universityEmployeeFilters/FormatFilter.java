@@ -1,9 +1,9 @@
-package com.github.jbarus.gradmasterbackend.Pipelines.Filters.UniversityEmployeeFilters;
+package com.github.jbarus.gradmasterbackend.pipelines.filters.universityEmployeeFilters;
 
-import com.github.jbarus.gradmasterbackend.Pipelines.Filters.FilterGroup;
-import com.github.jbarus.gradmasterbackend.Pipelines.Filters.FilterGroupType;
-import com.github.jbarus.gradmasterbackend.Pipelines.Filters.FilterOrder;
-import com.github.jbarus.gradmasterbackend.Pipelines.Filters.XLSXFilter;
+import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
+import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
+import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterOrder;
+import com.github.jbarus.gradmasterbackend.pipelines.filters.XLSXFilter;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;

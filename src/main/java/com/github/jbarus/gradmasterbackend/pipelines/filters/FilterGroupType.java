@@ -1,4 +1,4 @@
-package com.github.jbarus.gradmasterbackend.Pipelines.Filters;
+package com.github.jbarus.gradmasterbackend.pipelines.filters;
 
 public enum FilterGroupType {
     STUDENT,
