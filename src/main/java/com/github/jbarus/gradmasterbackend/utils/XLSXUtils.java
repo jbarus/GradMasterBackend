@@ -4,15 +4,16 @@ import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class XLSXUtils {
     public static List<List<String>> convertXSLXToList(XSSFWorkbook workbook) {
@@ -20,7 +21,7 @@ public class XLSXUtils {
         DataFormatter formatter = new DataFormatter();
         List<List<String>> workbookData = new ArrayList<>();
         for (Row row : sheet) {
-            List<String> rowData = new ArrayList<String>();
+            List<String> rowData = new ArrayList<>();
             for (Cell cell : row) {
                 rowData.add(formatter.formatCellValue(cell));
             }
@@ -42,6 +43,17 @@ public class XLSXUtils {
             ));
         }
         return universityEmployees;
+    }
+
+    public static HashMap<LocalDate, List<List<String>>> splitByDates(List<List<String>> workbookData){
+        HashMap<LocalDate, List<List<String>>> dates = new HashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy");
+
+        for (List<String> rowData : workbookData) {
+            LocalDate date = LocalDate.parse(rowData.get(3), formatter);
+            dates.computeIfAbsent(date, k -> new ArrayList<>()).add(rowData);
+        }
+        return dates;
     }
 
     private static boolean convertStringToBoolean(String booleanValue) {

@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -18,12 +20,12 @@ public class UploadController {
     }
 
     @PostMapping(path = "/university-employee")
-    public ResponseEntity<List<UniversityEmployee>> handleUniversityEmployeeFile(@RequestParam("universityEmployees") MultipartFile file) {
+    public ResponseEntity<HashMap<LocalDate, List<UniversityEmployee>>> handleUniversityEmployeeFile(@RequestParam("universityEmployees") MultipartFile file) {
         if(file.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
 
-        List<UniversityEmployee> universityEmployees = null;
+        HashMap<LocalDate, List<UniversityEmployee>> universityEmployees = null;
         try{
             universityEmployees = universityEmployeeService.prepareUniversityEmployees(file);
         }catch (Exception e) {

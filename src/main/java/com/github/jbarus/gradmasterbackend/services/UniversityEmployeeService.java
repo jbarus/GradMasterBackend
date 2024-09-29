@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.services;
 
+import com.github.jbarus.gradmasterbackend.context.Context;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.pipelines.UniversityEmployeeExtractionPipeline;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
@@ -9,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLOutput;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class UniversityEmployeeService {
@@ -20,7 +21,7 @@ public class UniversityEmployeeService {
         this.universityEmployeeExtractionPipeline = universityEmployeeExtractionPipeline;
     }
 
-    public List<UniversityEmployee> prepareUniversityEmployees(MultipartFile file) throws Exception {
+    public HashMap<LocalDate, List<UniversityEmployee>> prepareUniversityEmployees(MultipartFile file) throws Exception {
         XSSFWorkbook workbook;
         try{
             workbook = new XSSFWorkbook(file.getInputStream());
@@ -35,9 +36,16 @@ public class UniversityEmployeeService {
             return null;
         }
 
-        List<UniversityEmployee> universityEmployees;
-        universityEmployees = XLSXUtils.convertRawDataToUniversityEmployee(workbookData);
+        HashMap<LocalDate, List<List<String>>> employeesByDate = XLSXUtils.splitByDates(workbookData);
 
-        return universityEmployees;
+        HashMap<LocalDate, List<UniversityEmployee>> universityEmployeesByDate = new HashMap<>();
+        for(Map.Entry<LocalDate, List<List<String>>> entry : employeesByDate.entrySet()){
+            Context context = Context.getInstance(entry.getKey());
+            List<UniversityEmployee> universityEmployees = XLSXUtils.convertRawDataToUniversityEmployee(entry.getValue());
+            context.setUniversityEmployeeList(universityEmployees);
+            universityEmployeesByDate.put(entry.getKey(), universityEmployees);
+        }
+
+        return universityEmployeesByDate;
     }
 }
