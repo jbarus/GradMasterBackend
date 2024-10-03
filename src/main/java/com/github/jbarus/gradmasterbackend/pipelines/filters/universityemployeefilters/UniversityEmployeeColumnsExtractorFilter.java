@@ -1,4 +1,4 @@
-package com.github.jbarus.gradmasterbackend.pipelines.filters.universityEmployeeFilters;
+package com.github.jbarus.gradmasterbackend.pipelines.filters.universityemployeefilters;
 
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
@@ -15,11 +15,12 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-@FilterOrder(1)
-@FilterGroup(FilterGroupType.UNIVERSITY_EMPLOYEE)
-public class ColumnsExtractorFilter implements XLSXFilter {
+@FilterGroup({
+        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 1)
+})
+public class UniversityEmployeeColumnsExtractorFilter implements XLSXFilter {
 
-    Set<String> columnsToKeep = new HashSet<String>(List.of(
+    Set<String> columnsToKeep = new HashSet<>(List.of(
             "NAZWISKO",
             "IMIE",
             "CZY_HABILITOWANY",

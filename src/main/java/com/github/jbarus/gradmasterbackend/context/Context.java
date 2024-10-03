@@ -20,6 +20,7 @@ public class Context {
 
     private List<UniversityEmployee> universityEmployeeList = new ArrayList<>();
     private List<Student> studentList = new ArrayList<>();
+    private HashMap<UniversityEmployee, List<Student>> universityEmployeeMap = new HashMap<>();
 
 
     private Context(){};

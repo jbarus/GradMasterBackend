@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.utils;
 
+import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -45,12 +46,12 @@ public class XLSXUtils {
         return universityEmployees;
     }
 
-    public static HashMap<LocalDate, List<List<String>>> splitByDates(List<List<String>> workbookData){
+    public static HashMap<LocalDate, List<List<String>>> splitByDates(List<List<String>> workbookData, int dateIndex){
         HashMap<LocalDate, List<List<String>>> dates = new HashMap<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         for (List<String> rowData : workbookData) {
-            LocalDate date = LocalDate.parse(rowData.get(3), formatter);
+            LocalDate date = LocalDate.parse(rowData.get(dateIndex), formatter);
             dates.computeIfAbsent(date, k -> new ArrayList<>()).add(rowData);
         }
         return dates;
@@ -58,5 +59,13 @@ public class XLSXUtils {
 
     private static boolean convertStringToBoolean(String booleanValue) {
         return booleanValue.equalsIgnoreCase("Tak");
+    }
+
+    public static HashMap<String, List<Student>> convertRawDataToStudentHashMapByUniversityEmployee(List<List<String>> value) {
+        HashMap<String, List<Student>> studentHashMap = new HashMap<>();
+        for (List<String> rowData : value) {
+            studentHashMap.computeIfAbsent(rowData.get(3), k -> new ArrayList<>()).add(new Student(rowData.get(0),rowData.get(1)));
+        }
+        return studentHashMap;
     }
 }

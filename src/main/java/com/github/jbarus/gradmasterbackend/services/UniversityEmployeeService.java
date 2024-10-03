@@ -9,7 +9,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -36,7 +35,7 @@ public class UniversityEmployeeService {
             return null;
         }
 
-        HashMap<LocalDate, List<List<String>>> employeesByDate = XLSXUtils.splitByDates(workbookData);
+        HashMap<LocalDate, List<List<String>>> employeesByDate = XLSXUtils.splitByDates(workbookData, 3);
 
         HashMap<LocalDate, List<UniversityEmployee>> universityEmployeesByDate = new HashMap<>();
         for(Map.Entry<LocalDate, List<List<String>>> entry : employeesByDate.entrySet()){

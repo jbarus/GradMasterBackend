@@ -1,4 +1,4 @@
-package com.github.jbarus.gradmasterbackend.pipelines.filters.universityEmployeeFilters;
+package com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters;
 
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
@@ -13,17 +13,15 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-@FilterOrder(0)
-@FilterGroup(FilterGroupType.UNIVERSITY_EMPLOYEE)
-public class FormatFilter implements XLSXFilter {
-    Set<String> columnsToKeep = new HashSet<String>(List.of(
-            "NAZWISKO",
+@FilterGroup({
+        @FilterOrder(group = FilterGroupType.STUDENT, order = 0)
+})
+public class StudentFormatFilter implements XLSXFilter {
+    Set<String> columnsToKeep = new HashSet<>(List.of(
             "IMIE",
-            "CZY_HABILITOWANY",
-            "DATA_DOSTEPNOSCI",
-            "POCZATEK_DOSTEPNOSCI",
-            "KONIEC_DOSTEPNOSCI",
-            "DLUGOSC_KOMISJI"
+            "NAZWISKO",
+            "RECENZENT",
+            "DATA_OBRONY"
     ));
 
 

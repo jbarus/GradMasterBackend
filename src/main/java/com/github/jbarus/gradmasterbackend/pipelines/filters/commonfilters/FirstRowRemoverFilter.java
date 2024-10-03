@@ -1,4 +1,4 @@
-package com.github.jbarus.gradmasterbackend.pipelines.filters.universityEmployeeFilters;
+package com.github.jbarus.gradmasterbackend.pipelines.filters.commonfilters;
 
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
@@ -10,8 +10,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
 @Component
-@FilterOrder(2)
-@FilterGroup(FilterGroupType.UNIVERSITY_EMPLOYEE)
+@FilterGroup({
+        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 2),
+        @FilterOrder(group = FilterGroupType.STUDENT, order = 2)
+})
 public class FirstRowRemoverFilter implements XLSXFilter {
     @Override
     public void doFilter(XSSFWorkbook workbook) throws Exception {

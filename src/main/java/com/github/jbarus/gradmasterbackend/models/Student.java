@@ -12,12 +12,6 @@ public class Student {
     private String firstName;
     private String secondName;
 
-    public Student(UUID id, String firstName, String secondName) {
-        this.id = id;
-        this.firstName = firstName;
-        this.secondName = secondName;
-    }
-
     public Student(String firstName, String secondName) {
         this.id = UUID.randomUUID();
         this.firstName = firstName;
