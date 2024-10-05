@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.pipelines.filters.universityemployeefilters;
 
+import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterOrder;
@@ -38,6 +39,8 @@ public class UniversityEmployeeColumnsExtractorFilter implements XLSXFilter {
             Cell cell = sheet.getRow(0).getCell(index);
             if (cell != null && !columnsToKeep.contains(cell.getStringCellValue())) {
                 removeColumn(sheet,index);
+            } else {
+                columnsToKeep.remove(cell.getStringCellValue());
             }
         }
     }

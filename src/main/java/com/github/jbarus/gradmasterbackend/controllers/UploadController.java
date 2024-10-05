@@ -1,7 +1,9 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.context.Context;
 import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
+import com.github.jbarus.gradmasterbackend.models.communication.UploadResponse;
 import com.github.jbarus.gradmasterbackend.services.StudentService;
 import com.github.jbarus.gradmasterbackend.services.UniversityEmployeeService;
 import org.springframework.http.ResponseEntity;
@@ -24,43 +26,24 @@ public class UploadController {
     }
 
     @PostMapping(path = "/university-employee")
-    public ResponseEntity<HashMap<LocalDate, List<UniversityEmployee>>> handleUniversityEmployeeFile(@RequestParam("universityEmployees") MultipartFile file) {
+    public ResponseEntity<UploadResponse> handleUniversityEmployeeFile(@RequestParam("universityEmployees") MultipartFile file) {
         if(file.isEmpty()) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(UploadResponse.INVALID_INPUT);
         }
 
-        HashMap<LocalDate, List<UniversityEmployee>> universityEmployees;
-        try{
-            universityEmployees = universityEmployeeService.prepareUniversityEmployees(file);
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        if(universityEmployees == null) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        return ResponseEntity.ok(universityEmployees);
+        return universityEmployeeService.prepareUniversityEmployees(file);
     }
 
     @PostMapping(path = "/student")
-    public ResponseEntity<HashMap<LocalDate, List<Student>>> handleStudentFile(@RequestParam("students") MultipartFile file) {
+    public ResponseEntity<UploadResponse> handleStudentFile(@RequestParam("students") MultipartFile file) {
         if(file.isEmpty()) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(UploadResponse.INVALID_INPUT);
+        }
+        if(Context.getNumberOfAvailableContexts() == 0){
+            return ResponseEntity.badRequest().body(UploadResponse.UNINITIALIZED_CONTEXT);
         }
 
-        HashMap<LocalDate, List<Student>> universityEmployees;
-        try{
-            universityEmployees = studentService.prepareStudents(file);
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        if(universityEmployees == null) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        return ResponseEntity.ok(universityEmployees);
+        return studentService.prepareStudents(file);
     }
 
 }

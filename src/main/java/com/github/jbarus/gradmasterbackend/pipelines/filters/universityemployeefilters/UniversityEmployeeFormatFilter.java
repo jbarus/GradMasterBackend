@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.pipelines.filters.universityemployeefilters;
 
+import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterOrder;
@@ -29,7 +30,7 @@ public class UniversityEmployeeFormatFilter implements XLSXFilter {
 
 
     @Override
-    public void doFilter(XSSFWorkbook workbook) throws Exception {
+    public void doFilter(XSSFWorkbook workbook) throws MissingColumnsException {
         XSSFSheet sheet = workbook.getSheetAt(0);
 
         Set<String> fileColumnNames = new HashSet<>();
@@ -40,7 +41,7 @@ public class UniversityEmployeeFormatFilter implements XLSXFilter {
         }
 
         if(!fileColumnNames.containsAll(columnsToKeep)) {
-            throw new Exception("File does not contain all necessary columns");
+            throw new MissingColumnsException("File does not contain all necessary columns");
         }
     }
 }

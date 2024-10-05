@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters;
 
+import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterOrder;

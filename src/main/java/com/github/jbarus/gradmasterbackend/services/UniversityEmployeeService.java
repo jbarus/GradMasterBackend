@@ -1,11 +1,14 @@
 package com.github.jbarus.gradmasterbackend.services;
 
 import com.github.jbarus.gradmasterbackend.context.Context;
+import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
+import com.github.jbarus.gradmasterbackend.models.communication.UploadResponse;
 import com.github.jbarus.gradmasterbackend.pipelines.UniversityEmployeeExtractionPipeline;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,19 +23,26 @@ public class UniversityEmployeeService {
         this.universityEmployeeExtractionPipeline = universityEmployeeExtractionPipeline;
     }
 
-    public HashMap<LocalDate, List<UniversityEmployee>> prepareUniversityEmployees(MultipartFile file) throws Exception {
+    public ResponseEntity<UploadResponse> prepareUniversityEmployees(MultipartFile file) {
         XSSFWorkbook workbook;
         try{
             workbook = new XSSFWorkbook(file.getInputStream());
         }catch (Exception e){
-            return null;
+            return ResponseEntity.badRequest().body(UploadResponse.INVALID_INPUT);
         }
 
-        universityEmployeeExtractionPipeline.doFilter(workbook);
+        try{
+            universityEmployeeExtractionPipeline.doFilter(workbook);
+        }catch (MissingColumnsException ex){
+            return ResponseEntity.badRequest().body(UploadResponse.INVALID_CONTENT);
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(UploadResponse.PARSING_ERROR);
+        }
+
 
         List<List<String>> workbookData = XLSXUtils.convertXSLXToList(workbook);
         if(workbookData.isEmpty()){
-            return null;
+            return ResponseEntity.badRequest().body(UploadResponse.PARSING_ERROR);
         }
 
         HashMap<LocalDate, List<List<String>>> employeesByDate = XLSXUtils.splitByDates(workbookData, 3);
@@ -45,6 +55,6 @@ public class UniversityEmployeeService {
             universityEmployeesByDate.put(entry.getKey(), universityEmployees);
         }
 
-        return universityEmployeesByDate;
+        return ResponseEntity.ok().body(UploadResponse.SUCCESS);
     }
 }
