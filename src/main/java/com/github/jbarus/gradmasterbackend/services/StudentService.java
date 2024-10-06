@@ -5,6 +5,7 @@ import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
 import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadResponse;
+import com.github.jbarus.gradmasterbackend.models.communication.UploadResult;
 import com.github.jbarus.gradmasterbackend.pipelines.StudentExtractionPipeline;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,10 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class StudentService {
@@ -26,33 +24,33 @@ public class StudentService {
         this.studentExtractionPipeline = studentExtractionPipeline;
     }
 
-    public ResponseEntity<UploadResponse> prepareStudents(MultipartFile file) {
+    public ResponseEntity<UploadResponse<List<UUID>>> prepareStudents(MultipartFile file) {
         XSSFWorkbook workbook;
         try{
             workbook = new XSSFWorkbook(file.getInputStream());
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(UploadResponse.INVALID_INPUT);
+            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.INVALID_INPUT));
         }
 
         try{
             studentExtractionPipeline.doFilter(workbook);
         }catch (MissingColumnsException ex){
-            return ResponseEntity.badRequest().body(UploadResponse.INVALID_CONTENT);
+            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.INVALID_CONTENT));
         }catch (Exception ex){
-            return ResponseEntity.badRequest().body(UploadResponse.PARSING_ERROR);
+            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.PARSING_ERROR));
         }
 
         List<List<String>> workbookData = XLSXUtils.convertXSLXToList(workbook);
         if(workbookData.isEmpty()){
-            return ResponseEntity.badRequest().body(UploadResponse.PARSING_ERROR);
+            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.PARSING_ERROR));
         }
 
         HashMap<LocalDate, List<List<String>>> studentsAsListByDate = XLSXUtils.splitByDates(workbookData, 2);
-        HashMap<LocalDate, List<Student>> studentsByDate = new HashMap<>();
+        List<UUID> contextIds = new ArrayList<>();
         for(Map.Entry<LocalDate, List<List<String>>> entry : studentsAsListByDate.entrySet()){
             Context context = Context.getInstance(entry.getKey());
-            if(context.getUniversityEmployeeList() == null){
-                return ResponseEntity.badRequest().body(UploadResponse.UNINITIALIZED_CONTEXT);
+            if(Context.isInitialized(entry.getKey())){
+                return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.UNINITIALIZED_CONTEXT));
             }
             HashMap<String, List<Student>> studentsByUniversityEmployee = XLSXUtils.convertRawDataToStudentHashMapByUniversityEmployee(entry.getValue());
             List<Student> studentsForDate = new ArrayList<>();
@@ -66,10 +64,10 @@ public class StudentService {
                     studentsForDate.addAll(reviewedStudents);
                 }
             }
-            studentsByDate.put(entry.getKey(), studentsForDate);
             context.getStudentList().addAll(studentsForDate);
+            contextIds.add(context.getId());
         }
 
-        return ResponseEntity.ok().body(UploadResponse.SUCCESS);
+        return ResponseEntity.ok().body(new UploadResponse<>(UploadResult.SUCCESS, contextIds));
     }
 }

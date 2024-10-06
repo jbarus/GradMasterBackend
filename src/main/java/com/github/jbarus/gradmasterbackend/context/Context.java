@@ -10,27 +10,44 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class Context {
     @Setter(AccessLevel.NONE)
     @Getter(AccessLevel.NONE)
-    private static HashMap<LocalDate, Context> availableContexts = new HashMap<>();
+    private static HashMap<UUID, Context> availableContexts = new HashMap<>();
 
+    private UUID id;
+    private String name;
+    private LocalDate date;
     private List<UniversityEmployee> universityEmployeeList;
     private List<Student> studentList;
     private HashMap<UniversityEmployee, List<Student>> universityEmployeeMap;
 
 
     private Context(){
-        universityEmployeeList = new ArrayList<>();
-        studentList = new ArrayList<>();
-        universityEmployeeMap = new HashMap<>();
+        this.id = UUID.randomUUID();
+        this.universityEmployeeList = new ArrayList<>();
+        this.studentList = new ArrayList<>();
+        this.universityEmployeeMap = new HashMap<>();
     };
 
     public static Context getInstance(LocalDate date){
-        return availableContexts.computeIfAbsent(date, k -> new Context());
+        for (Context context : availableContexts.values()) {
+            if (context.date.equals(date)) {
+                return context;
+            }
+        }
+        Context context = new Context();
+        context.date = date;
+        availableContexts.put(context.id, context);
+        return context;
+    }
+
+    public static Context getInstance(UUID id){
+        return availableContexts.get(id);
     }
 
     public static int getNumberOfAvailableContexts(){
@@ -38,10 +55,11 @@ public class Context {
     }
 
     public static boolean isInitialized(LocalDate date){
-        if(availableContexts.containsKey(date)){
-            return availableContexts.get(date).universityEmployeeList != null;
-        }else {
-            return false;
+        for (Context context : availableContexts.values()) {
+            if (context.date.equals(date)) {
+                return context.universityEmployeeList.isEmpty();
+            }
         }
+        return false;
     }
 }
