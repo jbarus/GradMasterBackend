@@ -50,6 +50,14 @@ public class Context {
         return availableContexts.get(id);
     }
 
+    public static List<Context> getAvailableContexts(){
+        return new ArrayList<>(availableContexts.values());
+    }
+
+    public static Context deleteContext(UUID id){
+        return availableContexts.remove(id);
+    }
+
     public static int getNumberOfAvailableContexts(){
         return availableContexts.size();
     }
