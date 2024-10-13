@@ -2,6 +2,7 @@ package com.github.jbarus.gradmasterbackend.context;
 
 import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
+import com.github.jbarus.gradmasterbackend.structures.CorrelationMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,8 @@ public class Context {
     private List<UniversityEmployee> universityEmployeeList;
     private List<Student> studentList;
     private HashMap<UniversityEmployee, List<Student>> universityEmployeeMap;
+    private CorrelationMap<UniversityEmployee> positiveCorrelation;
+    private CorrelationMap<UniversityEmployee> negativeCorrelation;
 
 
     private Context(){
