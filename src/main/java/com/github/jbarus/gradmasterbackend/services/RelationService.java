@@ -23,22 +23,8 @@ public class RelationService {
             return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.UNINITIALIZED_CONTEXT));
         }
 
-        HashMap<UUID,UniversityEmployee> universityEmployeesById = new HashMap<>();
-        for(UniversityEmployee universityEmployee : context.getUniversityEmployeeList()){
-            universityEmployeesById.put(universityEmployee.getId(), universityEmployee);
-        }
-
-        CorrelationMap<UniversityEmployee> positiveCorrelationMap = new CorrelationMap<>();
-        CorrelationMap<UniversityEmployee> negativeCorrelationMap = new CorrelationMap<>();
-
-        for (int i = 0; i < positiveRelations.size(); i += 2) {
-            positiveCorrelationMap.addRelation(universityEmployeesById.get(positiveRelations.get(i)),universityEmployeesById.get(positiveRelations.get(i+1)));
-        }
-        for (int i = 0; i < negativeRelations.size(); i += 2) {
-            negativeCorrelationMap.addRelation(universityEmployeesById.get(negativeRelations.get(i)),universityEmployeesById.get(negativeRelations.get(i+1)));
-        }
-        context.setPositiveCorrelation(positiveCorrelationMap);
-        context.setNegativeCorrelation(negativeCorrelationMap);
+        context.setPositiveCorrelation(positiveRelations);
+        context.setNegativeCorrelation(negativeRelations);
         return ResponseEntity.ok().body(new UploadResponse<>(UploadResult.SUCCESS));
     }
 }

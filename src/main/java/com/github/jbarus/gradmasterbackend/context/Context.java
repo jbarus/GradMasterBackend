@@ -26,8 +26,10 @@ public class Context {
     private List<UniversityEmployee> universityEmployeeList;
     private List<Student> studentList;
     private HashMap<UniversityEmployee, List<Student>> universityEmployeeMap;
-    private CorrelationMap<UniversityEmployee> positiveCorrelation;
-    private CorrelationMap<UniversityEmployee> negativeCorrelation;
+    private List<Student> unassignedStudentList;
+    private List<UUID> positiveCorrelation;
+    private List<UUID> negativeCorrelation;
+    private ContextOptions contextOptions = new ContextOptions();
 
 
     private Context(){
@@ -35,6 +37,7 @@ public class Context {
         this.universityEmployeeList = new ArrayList<>();
         this.studentList = new ArrayList<>();
         this.universityEmployeeMap = new HashMap<>();
+        this.unassignedStudentList = new ArrayList<>();
     };
 
     public static Context getInstance(LocalDate date){

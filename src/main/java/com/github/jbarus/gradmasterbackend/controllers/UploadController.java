@@ -57,7 +57,6 @@ public class UploadController {
             return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.INVALID_CONTENT));
         }
         relationService.updateRealitons(id,relationDTO.getPositive(),relationDTO.getNegative());
-        Context context = Context.getInstance(id);
         return ResponseEntity.ok(new UploadResponse<>(UploadResult.SUCCESS));
     }
 

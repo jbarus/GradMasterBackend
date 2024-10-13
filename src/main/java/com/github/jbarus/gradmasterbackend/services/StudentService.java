@@ -7,6 +7,8 @@ import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadResponse;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadResult;
 import com.github.jbarus.gradmasterbackend.pipelines.StudentExtractionPipeline;
+import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentFormatFilter;
+import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentMajorFilter;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,7 @@ public class StudentService {
         }
 
         try{
+            studentExtractionPipeline.addFilterAfter(StudentFormatFilter.class, new StudentMajorFilter());
             studentExtractionPipeline.doFilter(workbook);
         }catch (MissingColumnsException ex){
             return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.INVALID_CONTENT));
@@ -58,11 +61,17 @@ public class StudentService {
             for (UniversityEmployee universityEmployee : context.getUniversityEmployeeList()) {
                 String employeeKey = universityEmployee.getSecondName() + " " + universityEmployee.getFirstName();
 
-                List<Student> reviewedStudents = studentsByUniversityEmployee.get(employeeKey);
+                List<Student> reviewedStudents = studentsByUniversityEmployee.remove(employeeKey);
 
                 if (reviewedStudents != null) {
                     universityEmployee.setReviewedStudents(reviewedStudents);
                     studentsForDate.addAll(reviewedStudents);
+                }
+            }
+            if(!studentsForDate.isEmpty()){
+                for(Map.Entry<String, List<Student>> list : studentsByUniversityEmployee.entrySet()){
+                    context.getUnassignedStudentList().addAll(list.getValue());
+                    context.getStudentList().addAll(list.getValue());
                 }
             }
             context.getStudentList().addAll(studentsForDate);

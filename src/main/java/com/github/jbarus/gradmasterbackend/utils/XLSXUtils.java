@@ -63,7 +63,7 @@ public class XLSXUtils {
     public static HashMap<String, List<Student>> convertRawDataToStudentHashMapByUniversityEmployee(List<List<String>> value) {
         HashMap<String, List<Student>> studentHashMap = new HashMap<>();
         for (List<String> rowData : value) {
-            studentHashMap.computeIfAbsent(rowData.get(3), k -> new ArrayList<>()).add(new Student(rowData.get(0),rowData.get(1)));
+            studentHashMap.computeIfAbsent(rowData.get(3), k -> new ArrayList<>()).add(new Student(rowData.get(1),rowData.get(0)));
         }
         return studentHashMap;
     }

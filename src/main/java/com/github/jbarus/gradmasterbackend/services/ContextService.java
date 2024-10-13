@@ -1,7 +1,7 @@
 package com.github.jbarus.gradmasterbackend.services;
 
 import com.github.jbarus.gradmasterbackend.context.Context;
-import com.github.jbarus.gradmasterbackend.models.dto.ContextDTO;
+import com.github.jbarus.gradmasterbackend.models.dto.ContextOverviewDTO;
 import com.github.jbarus.gradmasterbackend.utils.converters.ContextDTOConverter;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +11,8 @@ import java.util.UUID;
 
 @Service
 public class ContextService {
-    public List<ContextDTO> getAllContexts() {
-        List<ContextDTO> contexts = new ArrayList<>();
+    public List<ContextOverviewDTO> getAllContexts() {
+        List<ContextOverviewDTO> contexts = new ArrayList<>();
 
         for (Context context : Context.getAvailableContexts()){
             contexts.add(ContextDTOConverter.convertToDTO(context));
@@ -20,20 +20,20 @@ public class ContextService {
         return contexts;
     }
 
-    public ContextDTO getContextById(UUID id) {
+    public ContextOverviewDTO getContextById(UUID id) {
         return ContextDTOConverter.convertToDTO(Context.getInstance(id));
     }
 
-    public ContextDTO modifyContextRepresentation (ContextDTO contextDTO) {
-        Context context = Context.getInstance(contextDTO.getId());
+    public ContextOverviewDTO modifyContextRepresentation (ContextOverviewDTO contextOverviewDTO) {
+        Context context = Context.getInstance(contextOverviewDTO.getId());
         if(context != null) {
-            context.setName(contextDTO.getName());
-            return contextDTO;
+            context.setName(contextOverviewDTO.getName());
+            return contextOverviewDTO;
         }
         return null;
     }
     
-    public ContextDTO deleteContext(ContextDTO contextDTO) {
-        return ContextDTOConverter.convertToDTO(Context.deleteContext(contextDTO.getId()));
+    public ContextOverviewDTO deleteContext(ContextOverviewDTO contextOverviewDTO) {
+        return ContextDTOConverter.convertToDTO(Context.deleteContext(contextOverviewDTO.getId()));
     }
 }

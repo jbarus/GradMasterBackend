@@ -8,12 +8,12 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class ContextDTO {
+public class ContextOverviewDTO {
     UUID id;
     String name;
     LocalDate date;
 
-    public ContextDTO(UUID id, String name, LocalDate date) {
+    public ContextOverviewDTO(UUID id, String name, LocalDate date) {
         this.id = id;
         this.name = name;
         this.date = date;
