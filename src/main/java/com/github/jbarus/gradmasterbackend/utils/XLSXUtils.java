@@ -45,6 +45,16 @@ public class XLSXUtils {
         return universityEmployees;
     }
 
+    public static HashMap<String, List<Student>> getStudentReviewerMapping(List<List<String>> workbookData) {
+        HashMap<String, List<Student>> studentsByReviewer = new HashMap<>();
+
+        for(List<String> student : workbookData) {
+            studentsByReviewer.computeIfAbsent(student.get(3), k -> new ArrayList<>()).add(new Student(student.get(1),student.get(0)));
+        }
+
+        return studentsByReviewer;
+    }
+
     public static HashMap<LocalDate, List<List<String>>> splitByDates(List<List<String>> workbookData, int dateIndex){
         HashMap<LocalDate, List<List<String>>> dates = new HashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");

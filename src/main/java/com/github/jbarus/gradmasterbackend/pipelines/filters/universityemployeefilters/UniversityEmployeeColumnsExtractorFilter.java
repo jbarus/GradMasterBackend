@@ -1,6 +1,5 @@
 package com.github.jbarus.gradmasterbackend.pipelines.filters.universityemployeefilters;
 
-import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterOrder;
@@ -17,7 +16,7 @@ import java.util.Set;
 
 @Component
 @FilterGroup({
-        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 1)
+        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 2)
 })
 public class UniversityEmployeeColumnsExtractorFilter implements XLSXFilter {
 
@@ -34,19 +33,19 @@ public class UniversityEmployeeColumnsExtractorFilter implements XLSXFilter {
     @Override
     public void doFilter(XSSFWorkbook workbook) throws Exception {
         XSSFSheet sheet = workbook.getSheetAt(0);
-
+        Set<String> columnsToKeepTemp = new HashSet<>(columnsToKeep);
         for (int index = 0; index < sheet.getRow(0).getLastCellNum(); index++) {
             Cell cell = sheet.getRow(0).getCell(index);
-            if (cell != null && !columnsToKeep.contains(cell.getStringCellValue())) {
+            if (cell != null && !columnsToKeepTemp.contains(cell.getStringCellValue())) {
                 removeColumn(sheet,index);
             } else {
-                columnsToKeep.remove(cell.getStringCellValue());
+                columnsToKeepTemp.remove(cell.getStringCellValue());
             }
         }
     }
 
     private void removeColumn(XSSFSheet sheet, int columnIndex) {
-        for (int rowIndex = 0; rowIndex < sheet.getLastRowNum(); rowIndex++) {
+        for (int rowIndex = 0; rowIndex < sheet.getLastRowNum()+1; rowIndex++) {
             Row row = sheet.getRow(rowIndex);
             if (row != null) {
                 Cell cell = row.getCell(columnIndex);

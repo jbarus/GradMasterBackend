@@ -1,12 +1,13 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
-import com.github.jbarus.gradmasterbackend.context.Context;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
+import com.github.jbarus.gradmasterbackend.models.communication.Response;
+import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
+import com.github.jbarus.gradmasterbackend.models.dto.UniversityEmployeeDTO;
+import com.github.jbarus.gradmasterbackend.services.UniversityEmployeeService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,13 +15,28 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/university-employees")
 public class UniversityEmployeeController {
+    private final UniversityEmployeeService universityEmployeeService;
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<List<UniversityEmployee>> getListOfUniversityEmployeesForContext(@PathVariable("id") UUID id) {
-        Context context = Context.getInstance(id);
-        if(context == null) {
-            return ResponseEntity.badRequest().build();
+    public UniversityEmployeeController(UniversityEmployeeService universityEmployeeService) {
+        this.universityEmployeeService = universityEmployeeService;
+    }
+
+    @PostMapping
+    public ResponseEntity<Response<UploadStatus, UniversityEmployeeDTO>> uploadUniversityEmployeesFile(@RequestParam("universityEmployees") MultipartFile file) {
+        if(file.isEmpty()) {
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT, null));
         }
-        return ResponseEntity.ok().body(context.getUniversityEmployeeList());
+
+        return universityEmployeeService.handleUniversityEmployeeFile(file);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<UniversityEmployee>> getUniversityEmployeeByContext(@PathVariable UUID id) {
+        return universityEmployeeService.getUniversityEmployeeByContext(id);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<List<UniversityEmployee>> updateUniversityEmployeeByContext(@PathVariable UUID id, @RequestBody List<UniversityEmployee> universityEmployees) {
+        return universityEmployeeService.updateUniversityEmployeeByContext(id, universityEmployees);
     }
 }

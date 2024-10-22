@@ -1,0 +1,17 @@
+package com.github.jbarus.gradmasterbackend.models.dto;
+
+import lombok.*;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ContextDisplayInfoDTO {
+    private UUID uuid;
+    private String name;
+    private LocalDate date;
+}

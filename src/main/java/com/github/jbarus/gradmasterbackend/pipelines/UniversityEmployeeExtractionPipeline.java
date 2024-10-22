@@ -1,8 +1,8 @@
 package com.github.jbarus.gradmasterbackend.pipelines;
 
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroup;
-import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterOrder;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterGroupType;
+import com.github.jbarus.gradmasterbackend.pipelines.filters.FilterOrder;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.XLSXFilter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;

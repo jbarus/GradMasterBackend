@@ -1,23 +1,27 @@
 package com.github.jbarus.gradmasterbackend.services;
 
-import com.github.jbarus.gradmasterbackend.context.Context;
 import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
+import com.github.jbarus.gradmasterbackend.exceptions.MultipleDatesException;
+import com.github.jbarus.gradmasterbackend.mappers.StudentMapper;
 import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
-import com.github.jbarus.gradmasterbackend.models.communication.UploadResponse;
-import com.github.jbarus.gradmasterbackend.models.communication.UploadResult;
+import com.github.jbarus.gradmasterbackend.models.communication.Response;
+import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
+import com.github.jbarus.gradmasterbackend.models.dto.StudentDTO;
+import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.pipelines.StudentExtractionPipeline;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentFormatFilter;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentMajorFilter;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class StudentService {
@@ -27,57 +31,73 @@ public class StudentService {
         this.studentExtractionPipeline = studentExtractionPipeline;
     }
 
-    public ResponseEntity<UploadResponse<List<UUID>>> prepareStudents(MultipartFile file) {
+    public ResponseEntity<Response<UploadStatus, StudentDTO>> handleStudentFile(MultipartFile file, UUID id) {
         XSSFWorkbook workbook;
         try{
             workbook = new XSSFWorkbook(file.getInputStream());
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.INVALID_INPUT));
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT, null));
         }
 
         try{
             studentExtractionPipeline.addFilterAfter(StudentFormatFilter.class, new StudentMajorFilter());
             studentExtractionPipeline.doFilter(workbook);
         }catch (MissingColumnsException ex){
-            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.INVALID_CONTENT));
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_CONTENT, null));
+        }catch (MultipleDatesException ex){
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.MULTIPLE_DATES, null));
         }catch (Exception ex){
-            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.PARSING_ERROR));
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.PARSING_ERROR, null));
         }
 
         List<List<String>> workbookData = XLSXUtils.convertXSLXToList(workbook);
+
         if(workbookData.isEmpty()){
-            return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.PARSING_ERROR));
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.PARSING_ERROR));
         }
 
-        HashMap<LocalDate, List<List<String>>> studentsAsListByDate = XLSXUtils.splitByDates(workbookData, 2);
-        List<UUID> contextIds = new ArrayList<>();
-        for(Map.Entry<LocalDate, List<List<String>>> entry : studentsAsListByDate.entrySet()){
-            Context context = Context.getInstance(entry.getKey());
-            if(Context.isInitialized(entry.getKey())){
-                return ResponseEntity.badRequest().body(new UploadResponse<>(UploadResult.UNINITIALIZED_CONTEXT));
-            }
-            HashMap<String, List<Student>> studentsByUniversityEmployee = XLSXUtils.convertRawDataToStudentHashMapByUniversityEmployee(entry.getValue());
-            List<Student> studentsForDate = new ArrayList<>();
-            for (UniversityEmployee universityEmployee : context.getUniversityEmployeeList()) {
-                String employeeKey = universityEmployee.getSecondName() + " " + universityEmployee.getFirstName();
+        HashMap<String, List<Student>> studentReviewerMap = XLSXUtils.getStudentReviewerMapping(workbookData);
 
-                List<Student> reviewedStudents = studentsByUniversityEmployee.remove(employeeKey);
-
-                if (reviewedStudents != null) {
-                    universityEmployee.setReviewedStudents(reviewedStudents);
-                    studentsForDate.addAll(reviewedStudents);
-                }
-            }
-            if(!studentsForDate.isEmpty()){
-                for(Map.Entry<String, List<Student>> list : studentsByUniversityEmployee.entrySet()){
-                    context.getUnassignedStudentList().addAll(list.getValue());
-                    context.getStudentList().addAll(list.getValue());
-                }
-            }
-            context.getStudentList().addAll(studentsForDate);
-            contextIds.add(context.getId());
+        ProblemContext problemContext = ProblemContext.getInstance(id);
+        if(problemContext == null){
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.UNINITIALIZED_CONTEXT, null));
         }
 
-        return ResponseEntity.ok().body(new UploadResponse<>(UploadResult.SUCCESS, contextIds));
+        List<UniversityEmployee> universityEmployees = problemContext.getUniversityEmployees();
+        List<Student> students = new ArrayList<>();
+        HashMap<UUID, UUID> studentReviewerMapping = new HashMap<>();
+
+        for (UniversityEmployee universityEmployee : universityEmployees) {
+            List<Student> studentsForReviewer = studentReviewerMap.get(universityEmployee.getSecondName() + " " + universityEmployee.getFirstName());
+            if(studentsForReviewer != null){
+                for (Student student : studentsForReviewer) {
+                    studentReviewerMapping.put(universityEmployee.getId(), student.getId());
+                }
+            }
+        }
+        for (List<Student> studentsForReviewer : studentReviewerMap.values()){
+            students.addAll(studentsForReviewer);
+        }
+        problemContext.setStudents(students);
+        problemContext.setStudentReviewerMapping(studentReviewerMapping);
+
+        return ResponseEntity.badRequest().body(new Response<>(UploadStatus.SUCCESS, StudentMapper.convertStudentListToStudentDTO(problemContext)));
+    }
+
+    public ResponseEntity<List<Student>> getStudentsByContext(UUID id) {
+        ProblemContext problemContext = ProblemContext.getInstance(id);
+        if(problemContext == null || problemContext.getUniversityEmployees() == null){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().body(problemContext.getStudents());
+    }
+
+    public ResponseEntity<List<Student>> updateStudentsByContext(UUID id, List<Student> students) {
+        ProblemContext problemContext = ProblemContext.getInstance(id);
+        if(problemContext == null || problemContext.getUniversityEmployees() == null){
+            return ResponseEntity.badRequest().build();
+        }
+        problemContext.setStudents(students);
+        return ResponseEntity.ok().body(problemContext.getStudents());
     }
 }
