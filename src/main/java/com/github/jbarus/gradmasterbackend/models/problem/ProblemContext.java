@@ -37,6 +37,7 @@ public class ProblemContext {
 
     private ProblemContext(UUID uuid) {
         this.uuid = uuid;
+        this.problemParameters = new ProblemParameters();
     }
 
     public static ProblemContext getOrCreateInstance(UUID id){
