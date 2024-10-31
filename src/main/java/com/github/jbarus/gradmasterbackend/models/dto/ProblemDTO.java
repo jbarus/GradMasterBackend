@@ -18,9 +18,9 @@ public class ProblemDTO {
     private UUID id;
     private List<UniversityEmployee> universityEmployees;
     private List<Student> students;
-    private HashMap<UUID, UUID> studentReviewerMapping;
-    private HashMap<UUID, UUID> positiveCorrelationMapping;
-    private HashMap<UUID, UUID> negativeCorrelationMapping;
+    private HashMap<UUID, List<UUID>> studentReviewerMapping;
+    private List<UUID> positiveCorrelationMapping;
+    private List<UUID> negativeCorrelationMapping;
     private List<UUID> splittedUniversityEmployees;
     private ProblemParameters problemParameters;
 

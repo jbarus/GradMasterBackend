@@ -65,18 +65,18 @@ public class StudentService {
 
         List<UniversityEmployee> universityEmployees = problemContext.getUniversityEmployees();
         List<Student> students = new ArrayList<>();
-        HashMap<UUID, UUID> studentReviewerMapping = new HashMap<>();
+        HashMap<UUID, List<UUID>> studentReviewerMapping = new HashMap<>();
 
         for (UniversityEmployee universityEmployee : universityEmployees) {
             List<Student> studentsForReviewer = studentReviewerMap.get(universityEmployee.getSecondName() + " " + universityEmployee.getFirstName());
-            if(studentsForReviewer != null){
+            if (studentsForReviewer != null) {
+                List<UUID> studentIds = new ArrayList<>();
                 for (Student student : studentsForReviewer) {
-                    studentReviewerMapping.put(universityEmployee.getId(), student.getId());
+                    studentIds.add(student.getId());
                 }
+                studentReviewerMapping.put(universityEmployee.getId(), studentIds);
+                students.addAll(studentsForReviewer);
             }
-        }
-        for (List<Student> studentsForReviewer : studentReviewerMap.values()){
-            students.addAll(studentsForReviewer);
         }
         problemContext.setStudents(students);
         problemContext.setStudentReviewerMapping(studentReviewerMapping);
