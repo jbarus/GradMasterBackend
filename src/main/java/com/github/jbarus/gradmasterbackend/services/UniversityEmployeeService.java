@@ -25,7 +25,7 @@ public class UniversityEmployeeService {
         this.universityEmployeeExtractionPipeline = universityEmployeeExtractionPipeline;
     }
 
-    public ResponseEntity<Response<UploadStatus, UniversityEmployeeDTO>> handleUniversityEmployeeFile(MultipartFile file){
+    public ResponseEntity<Response<UploadStatus, UniversityEmployeeDTO>> handleUniversityEmployeeFile(MultipartFile file, UUID id){
         XSSFWorkbook workbook;
         try{
             workbook = new XSSFWorkbook(file.getInputStream());
@@ -50,7 +50,11 @@ public class UniversityEmployeeService {
         }
 
         List<UniversityEmployee> universityEmployees;
-        ProblemContext problemContext = ProblemContext.getOrCreateInstance(UUID.randomUUID());
+        ProblemContext problemContext = ProblemContext.getInstance(id);
+
+        if(problemContext == null){
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.UNINITIALIZED_CONTEXT, null));
+        }
 
         universityEmployees = XLSXUtils.convertRawDataToUniversityEmployee(workbookData);
         problemContext.setUniversityEmployees(universityEmployees);

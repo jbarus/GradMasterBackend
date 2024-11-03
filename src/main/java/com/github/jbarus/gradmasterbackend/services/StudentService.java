@@ -66,7 +66,6 @@ public class StudentService {
         List<UniversityEmployee> universityEmployees = problemContext.getUniversityEmployees();
         List<Student> students = new ArrayList<>();
         HashMap<UUID, List<UUID>> studentReviewerMapping = new HashMap<>();
-        //TODO Do przerobienia bo nie łapie studentów bez profesora w komisji
         for (UniversityEmployee universityEmployee : universityEmployees) {
             List<Student> studentsForReviewer = studentReviewerMap.get(universityEmployee.getSecondName() + " " + universityEmployee.getFirstName());
             if (studentsForReviewer != null) {
@@ -86,7 +85,7 @@ public class StudentService {
         problemContext.setStudents(students);
         problemContext.setStudentReviewerMapping(studentReviewerMapping);
 
-        return ResponseEntity.badRequest().body(new Response<>(UploadStatus.SUCCESS, StudentMapper.convertStudentListToStudentDTO(problemContext)));
+        return ResponseEntity.ok().body(new Response<>(UploadStatus.SUCCESS, StudentMapper.convertStudentListToStudentDTO(problemContext)));
     }
 
     public ResponseEntity<List<Student>> getStudentsByContext(UUID id) {

@@ -21,13 +21,13 @@ public class UniversityEmployeeController {
         this.universityEmployeeService = universityEmployeeService;
     }
 
-    @PostMapping
-    public ResponseEntity<Response<UploadStatus, UniversityEmployeeDTO>> uploadUniversityEmployeesFile(@RequestParam("universityEmployees") MultipartFile file) {
+    @PostMapping("/{id}")
+    public ResponseEntity<Response<UploadStatus, UniversityEmployeeDTO>> uploadUniversityEmployeesFile(@RequestParam("universityEmployees") MultipartFile file, @PathVariable UUID id) {
         if(file.isEmpty()) {
             return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT, null));
         }
 
-        return universityEmployeeService.handleUniversityEmployeeFile(file);
+        return universityEmployeeService.handleUniversityEmployeeFile(file, id);
     }
 
     @GetMapping("/{id}")
