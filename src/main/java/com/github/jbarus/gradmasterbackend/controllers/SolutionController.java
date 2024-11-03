@@ -1,9 +1,11 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.models.dto.SolutionDTO;
 import com.github.jbarus.gradmasterbackend.services.SolutionService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/solutions")
@@ -15,10 +17,18 @@ public class SolutionController {
         this.solutionService = solutionService;
     }
 
-    @GetMapping
-    public String placeholder() {
-        // Implement this latter, the main take is to have a flag "calculationInProgress"
-        // when is set to true user can't change solution bc it will get overwritten
-        return "Placeholder";
+    @GetMapping("/{contextId}")
+    public ResponseEntity<SolutionDTO> getSolution(@PathVariable UUID contextId) {
+        return solutionService.getSolutionByContextId(contextId);
+    }
+
+    @PutMapping("/{contextId}")
+    public ResponseEntity<SolutionDTO> updateSolution(@PathVariable UUID contextId, @RequestBody SolutionDTO solutionDTO) {
+        return solutionService.updateSolutionByContextId(contextId, solutionDTO);
+    }
+
+    @PostMapping("/{contextId}")
+    public ResponseEntity<SolutionDTO> setSolution(@PathVariable UUID contextId, @RequestBody SolutionDTO solutionDTO) {
+        return solutionService.setSolutionByContextId(contextId, solutionDTO);
     }
 }

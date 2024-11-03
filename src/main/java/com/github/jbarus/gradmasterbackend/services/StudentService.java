@@ -66,7 +66,7 @@ public class StudentService {
         List<UniversityEmployee> universityEmployees = problemContext.getUniversityEmployees();
         List<Student> students = new ArrayList<>();
         HashMap<UUID, List<UUID>> studentReviewerMapping = new HashMap<>();
-
+        //TODO Do przerobienia bo nie łapie studentów bez profesora w komisji
         for (UniversityEmployee universityEmployee : universityEmployees) {
             List<Student> studentsForReviewer = studentReviewerMap.get(universityEmployee.getSecondName() + " " + universityEmployee.getFirstName());
             if (studentsForReviewer != null) {
@@ -76,7 +76,12 @@ public class StudentService {
                 }
                 studentReviewerMapping.put(universityEmployee.getId(), studentIds);
                 students.addAll(studentsForReviewer);
+                studentReviewerMap.remove(universityEmployee.getSecondName() + " " + universityEmployee.getFirstName());
             }
+        }
+        for (List<Student> studentsWithoutReviewer : studentReviewerMap.values()) {
+            students.addAll(studentsWithoutReviewer);
+            System.out.println(studentsWithoutReviewer);
         }
         problemContext.setStudents(students);
         problemContext.setStudentReviewerMapping(studentReviewerMapping);

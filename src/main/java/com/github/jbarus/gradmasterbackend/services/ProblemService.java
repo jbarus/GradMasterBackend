@@ -41,7 +41,7 @@ public class ProblemService {
         }
 
         ProblemDTO problemDTO = ProblemContextMapper.problemContextToProblemDTOConverter(problemContext);
-        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, problemDTO);
-        return ResponseEntity.badRequest().body(new Response<>(CalculationStartStatus.SUCCESS, problemDTO));
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.PROBLEM_ROUTING_KEY, problemDTO);
+        return ResponseEntity.ok().body(new Response<>(CalculationStartStatus.SUCCESS, problemDTO));
     }
 }

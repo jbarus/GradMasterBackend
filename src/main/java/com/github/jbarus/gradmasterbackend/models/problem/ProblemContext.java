@@ -31,6 +31,7 @@ public class ProblemContext {
     private List<UUID> splittedUniversityEmployees;
     private Solution solution;
     private ProblemParameters problemParameters;
+    private boolean inProgress = false;
 
 
     private boolean calculationInProgress;
