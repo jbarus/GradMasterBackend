@@ -1,11 +1,9 @@
 package com.github.jbarus.gradmasterbackend.services;
 
-import com.github.jbarus.gradmasterbackend.exceptions.MissingColumnsException;
-import com.github.jbarus.gradmasterbackend.exceptions.MultipleDatesException;
+import com.github.jbarus.gradmasterbackend.exceptions.*;
 import com.github.jbarus.gradmasterbackend.mappers.StudentMapper;
 import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
-import com.github.jbarus.gradmasterbackend.models.communication.Response;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
 import com.github.jbarus.gradmasterbackend.models.dto.StudentDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
@@ -14,7 +12,6 @@ import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.Stud
 import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentMajorFilter;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,36 +28,41 @@ public class StudentService {
         this.studentExtractionPipeline = studentExtractionPipeline;
     }
 
-    public ResponseEntity<Response<UploadStatus, StudentDTO>> handleStudentFile(MultipartFile file, UUID id) {
+    public StudentDTO handleStudentFile(MultipartFile file, UUID id) {
         XSSFWorkbook workbook;
-        try{
+
+        try {
             workbook = new XSSFWorkbook(file.getInputStream());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT, null));
+        } catch (Exception e) {
+            throw new InvalidInputException("Invalid input file");
         }
 
-        try{
+        try {
             studentExtractionPipeline.addFilterAfter(StudentFormatFilter.class, new StudentMajorFilter());
             studentExtractionPipeline.doFilter(workbook);
-        }catch (MissingColumnsException ex){
-            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_CONTENT, null));
-        }catch (MultipleDatesException ex){
-            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.MULTIPLE_DATES, null));
-        }catch (Exception ex){
-            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.PARSING_ERROR, null));
+        } catch (MissingColumnsException e) {
+            throw new BusinessLogicException(UploadStatus.INVALID_CONTENT);
+        } catch (MultipleDatesException e) {
+            throw new BusinessLogicException(UploadStatus.MULTIPLE_DATES);
+        } catch (Exception e) {
+            throw new BusinessLogicException(UploadStatus.PARSING_ERROR);
         }
 
         List<List<String>> workbookData = XLSXUtils.convertXSLXToList(workbook);
 
-        if(workbookData.isEmpty()){
-            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.PARSING_ERROR));
+        if (workbookData.isEmpty()) {
+            throw new BusinessLogicException(UploadStatus.PARSING_ERROR);
         }
 
         HashMap<String, List<Student>> studentReviewerMap = XLSXUtils.getStudentReviewerMapping(workbookData);
-
         ProblemContext problemContext = ProblemContext.getInstance(id);
-        if(problemContext == null){
-            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.UNINITIALIZED_CONTEXT, null));
+
+        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
+            throw new UninitializedContextException("No such context");
+        }
+
+        if(problemContext.getStudents() != null && problemContext.getStudentReviewerMapping() != null) {
+            throw new BusinessLogicException(UploadStatus.INVALIDUPDATESEQUENCE);
         }
 
         List<UniversityEmployee> universityEmployees = problemContext.getUniversityEmployees();
@@ -85,23 +87,36 @@ public class StudentService {
         problemContext.setStudents(students);
         problemContext.setStudentReviewerMapping(studentReviewerMapping);
 
-        return ResponseEntity.ok().body(new Response<>(UploadStatus.SUCCESS, StudentMapper.convertStudentListToStudentDTO(problemContext)));
+        return StudentMapper.convertStudentListToStudentDTO(problemContext);
     }
 
-    public ResponseEntity<List<Student>> getStudentsByContext(UUID id) {
+    public List<Student> getStudentsByContext(UUID id) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
-        if(problemContext == null || problemContext.getUniversityEmployees() == null){
-            return ResponseEntity.badRequest().build();
+
+        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
+            throw new UninitializedContextException("No such context");
         }
-        return ResponseEntity.ok().body(problemContext.getStudents());
+
+        return problemContext.getStudents();
     }
 
-    public ResponseEntity<List<Student>> updateStudentsByContext(UUID id, List<Student> students) {
+    public List<Student> updateStudentsByContext(UUID id, List<Student> students) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
-        if(problemContext == null || problemContext.getUniversityEmployees() == null){
-            return ResponseEntity.badRequest().build();
+
+        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
+            throw new UninitializedContextException("No such context");
         }
+
+        if(problemContext.getStudents() == null && problemContext.getStudentReviewerMapping() == null) {
+            throw new BusinessLogicException(UploadStatus.UNINITIALIZED_CONTEXT);
+        }
+
+        for (Student student : students) {
+            if(problemContext.getStudents().contains(student))
+                throw new BusinessLogicException(UploadStatus.UNAUTHORIZEDMODIFICATION);
+        }
+
         problemContext.setStudents(students);
-        return ResponseEntity.ok().body(problemContext.getStudents());
+        return problemContext.getStudents();
     }
 }

@@ -1,5 +1,8 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.exceptions.BusinessLogicException;
+import com.github.jbarus.gradmasterbackend.exceptions.InvalidInputException;
+import com.github.jbarus.gradmasterbackend.exceptions.UninitializedContextException;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.communication.Response;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
@@ -22,21 +25,40 @@ public class UniversityEmployeeController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Response<UploadStatus, UniversityEmployeeDTO>> uploadUniversityEmployeesFile(@RequestParam("universityEmployees") MultipartFile file, @PathVariable UUID id) {
-        if(file.isEmpty()) {
-            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT, null));
+    public ResponseEntity<?> uploadUniversityEmployeesFile(@RequestParam("universityEmployees") MultipartFile file, @PathVariable UUID id) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT));
         }
 
-        return universityEmployeeService.handleUniversityEmployeeFile(file, id);
+        try {
+            UniversityEmployeeDTO result = universityEmployeeService.handleUniversityEmployeeFile(file, id);
+            return ResponseEntity.ok(new Response<>(UploadStatus.SUCCESS, result));
+        } catch (InvalidInputException e) {
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT));
+        } catch (UninitializedContextException e) {
+            return ResponseEntity.badRequest().body(new Response<>(UploadStatus.UNINITIALIZED_CONTEXT));
+        } catch (BusinessLogicException e) {
+            return ResponseEntity.badRequest().body(new Response<>(e.getStatus()));
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<UniversityEmployee>> getUniversityEmployeeByContext(@PathVariable UUID id) {
-        return universityEmployeeService.getUniversityEmployeeByContext(id);
+    public ResponseEntity<?> getUniversityEmployeeByContext(@PathVariable UUID id) {
+        try {
+            List<UniversityEmployee> employees = universityEmployeeService.getUniversityEmployeeByContext(id);
+            return ResponseEntity.ok(employees);
+        } catch (UninitializedContextException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<List<UniversityEmployee>> updateUniversityEmployeeByContext(@PathVariable UUID id, @RequestBody List<UniversityEmployee> universityEmployees) {
-        return universityEmployeeService.updateUniversityEmployeeByContext(id, universityEmployees);
+    public ResponseEntity<?> updateUniversityEmployeeByContext(@PathVariable UUID id, @RequestBody List<UniversityEmployee> universityEmployees) {
+        try {
+            List<UniversityEmployee> updatedEmployees = universityEmployeeService.updateUniversityEmployeeByContext(id, universityEmployees);
+            return ResponseEntity.ok(updatedEmployees);
+        } catch (UninitializedContextException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

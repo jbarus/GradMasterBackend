@@ -12,7 +12,9 @@ public enum UploadStatus {
     PARSING_ERROR(2003, "Error parsing content of file"),
     MULTIPLE_DATES(2004, "Multiple dates found"),
     UNINITIALIZED_CONTEXT(2005, "Accessing uninitialized parts of context"),
-    UNDEFINED(2006, "Undefined error");
+    UNDEFINED(2006, "Undefined error"),
+    INVALIDUPDATESEQUENCE(2007, "Wrong sequence of file upload"),
+    UNAUTHORIZEDMODIFICATION(2008, "Unauthorized modification"),;
 
     private final int statusCode;
     private final String statusMessage;
