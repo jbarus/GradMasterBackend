@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class ContextDisplayInfoDTO {
-    private UUID uuid;
+    private UUID id;
     private String name;
     private LocalDate date;
 }

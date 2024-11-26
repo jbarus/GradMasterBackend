@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.services.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,5 +82,15 @@ public class RelationController {
         hashMap.put("positive", positiveRelation);
         hashMap.put("negative", negativeRelation);
         return ResponseEntity.ok().body(hashMap);
+    }
+
+    @GetMapping("/positive/{contextId}")
+    public ResponseEntity<List<UniversityEmployee>> getPositiveRelations(@PathVariable UUID contextId) {
+        return relationService.getPositiveRelations(contextId);
+    }
+
+    @GetMapping("/negative/{contextId}")
+    public ResponseEntity<List<UniversityEmployee>> getNegativeRelations(@PathVariable UUID contextId) {
+        return relationService.getNegativeRelations(contextId);
     }
 }

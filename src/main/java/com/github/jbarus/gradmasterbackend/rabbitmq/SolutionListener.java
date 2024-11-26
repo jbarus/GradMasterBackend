@@ -16,7 +16,7 @@ public class SolutionListener {
         ProblemContext problemContext = ProblemContext.getInstance(solutionDTO.getId());
         Solution solution = new Solution();
         solution.setCommittees(solutionDTO.getCommittees());
-        solution.setUnassignedStudents(solution.getUnassignedStudents());
+        solution.setUnassignedStudents(solutionDTO.getUnassignedStudents());
         problemContext.setSolution(solution);
         problemContext.setInProgress(false);
     }

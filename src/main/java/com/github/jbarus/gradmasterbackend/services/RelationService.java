@@ -1,9 +1,11 @@
 package com.github.jbarus.gradmasterbackend.services;
 
+import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -66,5 +68,39 @@ public class RelationService {
         ProblemContext problemContext = ProblemContext.getInstance(contextId);
 
         return problemContext != null;
+    }
+
+    public ResponseEntity<List<UniversityEmployee>> getPositiveRelations(UUID contextId) {
+        ProblemContext problemContext = ProblemContext.getInstance(contextId);
+        if (problemContext == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<UniversityEmployee> positiveRelations = new ArrayList<>();
+        for(UUID uuid : problemContext.getPositiveCorrelationMapping()) {
+            for(UniversityEmployee universityEmployee : problemContext.getUniversityEmployees()){
+                if(uuid.equals(universityEmployee.getId())) {
+                    positiveRelations.add(universityEmployee);
+                }
+            }
+        }
+        return ResponseEntity.ok().body(positiveRelations);
+    }
+
+    public ResponseEntity<List<UniversityEmployee>> getNegativeRelations(UUID contextId) {
+        ProblemContext problemContext = ProblemContext.getInstance(contextId);
+        if (problemContext == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<UniversityEmployee> negativeRelations = new ArrayList<>();
+        for(UUID uuid : problemContext.getNegativeCorrelationMapping()) {
+            for(UniversityEmployee universityEmployee : problemContext.getUniversityEmployees()){
+                if(uuid.equals(universityEmployee.getId())) {
+                    negativeRelations.add(universityEmployee);
+                }
+            }
+        }
+        return ResponseEntity.ok().body(negativeRelations);
     }
 }

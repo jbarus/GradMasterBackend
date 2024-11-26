@@ -46,6 +46,6 @@ public class ContextDisplayInfoController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> deleteContextDisplayInfo(@PathVariable UUID uuid) {
         boolean deleted = contextDisplayInfoService.deleteContextDisplayInfo(uuid);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return deleted ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

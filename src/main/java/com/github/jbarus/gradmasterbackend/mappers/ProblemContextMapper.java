@@ -13,7 +13,7 @@ public class ProblemContextMapper {
 
     public static ContextDisplayInfoDTO problemContextToContextDisplayInfoDTOConverter(ProblemContext problemContext) {
         return ContextDisplayInfoDTO.builder()
-                .uuid(problemContext.getUuid())
+                .id(problemContext.getUuid())
                 .name(problemContext.getName())
                 .date(problemContext.getDate())
                 .build();
