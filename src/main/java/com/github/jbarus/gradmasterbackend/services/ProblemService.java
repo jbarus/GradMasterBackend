@@ -1,47 +1,63 @@
 package com.github.jbarus.gradmasterbackend.services;
 
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.MissingDataException;
 import com.github.jbarus.gradmasterbackend.mappers.ProblemContextMapper;
 import com.github.jbarus.gradmasterbackend.models.communication.CalculationStartStatus;
-import com.github.jbarus.gradmasterbackend.models.communication.Response;
 import com.github.jbarus.gradmasterbackend.models.dto.ProblemDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.rabbitmq.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.parsing.Problem;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 public class ProblemService {
-
     private final RabbitTemplate rabbitTemplate;
 
     public ProblemService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public ResponseEntity<Response<CalculationStartStatus, ProblemDTO>> publishProblem(UUID contextId) {
-        ProblemContext problemContext = ProblemContext.getInstance(contextId);
-        if (problemContext == null) {
-            return ResponseEntity.badRequest().body(new Response<>(CalculationStartStatus.NO_SUCH_CONTEXT, null));
-        }
+    public ProblemDTO publishProblem(UUID contextId) {
+        ProblemContext problemContext = getValidContext(contextId);
 
-        if(problemContext.getUniversityEmployees() == null || problemContext.getUniversityEmployees().isEmpty()) {
-            return ResponseEntity.badRequest().body(new Response<>(CalculationStartStatus.MISSING_OR_INCOMPLETE_UNIVERSITY_EMPLOYEE, null));
-        }
-
-        if (problemContext.getStudents() == null || problemContext.getStudents().isEmpty()) {
-            return ResponseEntity.badRequest().body(new Response<>(CalculationStartStatus.MISSING_OR_INCOMPLETE_STUDENT, null));
-        }
-
-        if(problemContext.getProblemParameters() == null) {
-            return ResponseEntity.badRequest().body(new Response<>(CalculationStartStatus.MISSING_OR_INCOMPLETE_PROBLEM_PARAMETER, null));
-        }
+        validateProblemContext(problemContext);
 
         ProblemDTO problemDTO = ProblemContextMapper.problemContextToProblemDTOConverter(problemContext);
         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.PROBLEM_ROUTING_KEY, problemDTO);
-        return ResponseEntity.ok().body(new Response<>(CalculationStartStatus.SUCCESS, problemDTO));
+        return problemDTO;
+    }
+
+    private void validateProblemContext(ProblemContext problemContext) {
+        if (problemContext.getUniversityEmployees() == null || problemContext.getUniversityEmployees().isEmpty()) {
+            throw new MissingDataException(CalculationStartStatus.MISSING_OR_INCOMPLETE_UNIVERSITY_EMPLOYEE);
+        }
+
+        if (problemContext.getStudents() == null || problemContext.getStudents().isEmpty()) {
+            throw new MissingDataException(CalculationStartStatus.MISSING_OR_INCOMPLETE_STUDENT);
+        }
+
+        if(problemContext.getStudentReviewerMapping() == null || problemContext.getStudentReviewerMapping().isEmpty()) {
+            throw new MissingDataException(CalculationStartStatus.MISSING_STUDENT_REVIEWER_MAPPING);
+        }
+
+        if (problemContext.getProblemParameters() == null) {
+            throw new MissingDataException(CalculationStartStatus.MISSING_OR_INCOMPLETE_PROBLEM_PARAMETER);
+        }
+
+        if(problemContext.getUniversityEmployees().size() % problemContext.getProblemParameters().getCommitteeSize() != 0) {
+            throw new MissingDataException(CalculationStartStatus.INVALID_UNIVERSITY_EMPLOYEE_NUMBER);
+        }
+
+
+    }
+
+    private ProblemContext getValidContext(UUID contextId) {
+        ProblemContext context = ProblemContext.getInstance(contextId);
+        if (context == null) {
+            throw new IllegalArgumentException("Invalid context ID: " + contextId);
+        }
+        return context;
     }
 }
