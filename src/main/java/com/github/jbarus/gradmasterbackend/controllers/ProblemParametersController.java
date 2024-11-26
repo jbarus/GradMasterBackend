@@ -18,18 +18,36 @@ public class ProblemParametersController {
     }
 
     @PostMapping("/{contextId}")
-    public ResponseEntity<ProblemParameters> setProblemParameters(@PathVariable UUID contextId, @RequestBody ProblemParameters problemParameters) {
-        return problemParametersService.setProblemParametersByContextId(contextId, problemParameters);
+    public ResponseEntity<ProblemParameters> setProblemParameters(
+            @PathVariable UUID contextId,
+            @RequestBody ProblemParameters problemParameters) {
+        try {
+            ProblemParameters result = problemParametersService.setProblemParameters(contextId, problemParameters);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @GetMapping("/{contextId}")
     public ResponseEntity<ProblemParameters> getProblemParameters(@PathVariable UUID contextId) {
-        return problemParametersService.getProblemParametersByContextId(contextId);
+        try {
+            ProblemParameters result = problemParametersService.getProblemParameters(contextId);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @PutMapping("/{contextId}")
-    public ResponseEntity<ProblemParameters> updateProblemParameters(@PathVariable UUID contextId, @RequestBody ProblemParameters problemParameters) {
-        return problemParametersService.updateProblemParametersByContextId(contextId, problemParameters);
+    public ResponseEntity<ProblemParameters> updateProblemParameters(
+            @PathVariable UUID contextId,
+            @RequestBody ProblemParameters problemParameters) {
+        try {
+            ProblemParameters result = problemParametersService.updateProblemParameters(contextId, problemParameters);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
-
 }
