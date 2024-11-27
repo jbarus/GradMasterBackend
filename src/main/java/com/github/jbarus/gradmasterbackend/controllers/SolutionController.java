@@ -19,16 +19,37 @@ public class SolutionController {
 
     @GetMapping("/{contextId}")
     public ResponseEntity<SolutionDTO> getSolution(@PathVariable UUID contextId) {
-        return solutionService.getSolutionByContextId(contextId);
+        try {
+            SolutionDTO solutionDTO = solutionService.getSolutionByContextId(contextId);
+            return ResponseEntity.ok(solutionDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @PutMapping("/{contextId}")
-    public ResponseEntity<SolutionDTO> updateSolution(@PathVariable UUID contextId, @RequestBody SolutionDTO solutionDTO) {
-        return solutionService.updateSolutionByContextId(contextId, solutionDTO);
+    public ResponseEntity<SolutionDTO> updateSolution(
+            @PathVariable UUID contextId,
+            @RequestBody SolutionDTO solutionDTO
+    ) {
+        try {
+            SolutionDTO updatedSolution = solutionService.updateSolutionByContextId(contextId, solutionDTO);
+            return ResponseEntity.ok(updatedSolution);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @PostMapping("/{contextId}")
-    public ResponseEntity<SolutionDTO> setSolution(@PathVariable UUID contextId, @RequestBody SolutionDTO solutionDTO) {
-        return solutionService.setSolutionByContextId(contextId, solutionDTO);
+    public ResponseEntity<SolutionDTO> setSolution(
+            @PathVariable UUID contextId,
+            @RequestBody SolutionDTO solutionDTO
+    ) {
+        try {
+            SolutionDTO newSolution = solutionService.setSolutionByContextId(contextId, solutionDTO);
+            return ResponseEntity.ok(newSolution);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }

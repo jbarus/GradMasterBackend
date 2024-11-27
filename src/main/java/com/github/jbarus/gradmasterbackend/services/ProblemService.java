@@ -26,6 +26,7 @@ public class ProblemService {
 
         ProblemDTO problemDTO = ProblemContextMapper.problemContextToProblemDTOConverter(problemContext);
         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.PROBLEM_ROUTING_KEY, problemDTO);
+        problemContext.setCalculationInProgress(true);
         return problemDTO;
     }
 

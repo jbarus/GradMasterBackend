@@ -12,34 +12,29 @@ import java.util.UUID;
 @Service
 public class SolutionService {
 
-    public ResponseEntity<SolutionDTO> getSolutionByContextId(UUID contextId) {
+    public SolutionDTO getSolutionByContextId(UUID contextId) {
         ProblemContext problemContext = ProblemContext.getInstance(contextId);
-        if(problemContext == null || problemContext.getSolution() == null){
-            return ResponseEntity.badRequest().build();
+        if (problemContext == null || problemContext.getSolution() == null || problemContext.isInProgress()) {
+            throw new IllegalArgumentException("ProblemContext or solution not found for the given contextId");
         }
-        return ResponseEntity.ok().body(SolutionMapper.convertSolutionToSolutionDTO(problemContext));
+        return SolutionMapper.convertSolutionToSolutionDTO(problemContext);
     }
 
-    public ResponseEntity<SolutionDTO> updateSolutionByContextId(UUID contextId, SolutionDTO solutionDTO) {
+    public SolutionDTO updateSolutionByContextId(UUID contextId, SolutionDTO solutionDTO) {
         ProblemContext problemContext = ProblemContext.getInstance(contextId);
-        if(problemContext == null || problemContext.getSolution() == null){
-            return ResponseEntity.badRequest().build();
+        if (problemContext == null || problemContext.getSolution() == null || problemContext.isInProgress()) {
+            throw new IllegalArgumentException("ProblemContext or solution not found for the given contextId");
         }
-
         problemContext.setSolution(SolutionMapper.convertSolutionDTOToSolution(solutionDTO));
-
-        return ResponseEntity.ok().body(SolutionMapper.convertSolutionToSolutionDTO(problemContext));
+        return SolutionMapper.convertSolutionToSolutionDTO(problemContext);
     }
 
-    public ResponseEntity<SolutionDTO> setSolutionByContextId(UUID contextId, SolutionDTO solutionDTO) {
+    public SolutionDTO setSolutionByContextId(UUID contextId, SolutionDTO solutionDTO) {
         ProblemContext problemContext = ProblemContext.getInstance(contextId);
-        if(problemContext == null){
-            return ResponseEntity.badRequest().build();
+        if (problemContext == null || problemContext.isInProgress()) {
+            throw new IllegalArgumentException("ProblemContext not found for the given contextId");
         }
-
         problemContext.setSolution(SolutionMapper.convertSolutionDTOToSolution(solutionDTO));
-
-        return ResponseEntity.ok().body(SolutionMapper.convertSolutionToSolutionDTO(problemContext));
+        return SolutionMapper.convertSolutionToSolutionDTO(problemContext);
     }
-
 }
