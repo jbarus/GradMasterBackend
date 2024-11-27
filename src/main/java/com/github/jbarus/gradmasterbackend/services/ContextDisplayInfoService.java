@@ -18,17 +18,15 @@ public class ContextDisplayInfoService {
         problemContext.setName(name);
         problemContext.setDate(date);
 
-        System.out.println(problemContext);
-
         return new ContextDisplayInfoDTO(uuid, name, date);
     }
 
     public ContextDisplayInfoDTO getContextDisplayInfo(UUID uuid) {
         ProblemContext problemContext = ProblemContext.getInstance(uuid);
-        if (problemContext != null) {
-            return new ContextDisplayInfoDTO(problemContext.getUuid(), problemContext.getName(), problemContext.getDate());
+        if (problemContext == null) {
+            throw new IllegalArgumentException("ProblemContext not found for the given UUID");
         }
-        return null;
+        return new ContextDisplayInfoDTO(problemContext.getUuid(), problemContext.getName(), problemContext.getDate());
     }
 
     public List<ContextDisplayInfoDTO> getAllContextDisplayInfos() {
@@ -39,12 +37,12 @@ public class ContextDisplayInfoService {
 
     public ContextDisplayInfoDTO updateContextDisplayInfo(UUID uuid, String name, LocalDate date) {
         ProblemContext problemContext = ProblemContext.getInstance(uuid);
-        if (problemContext != null) {
-            problemContext.setName(name);
-            problemContext.setDate(date);
-            return new ContextDisplayInfoDTO(problemContext.getUuid(), name, date);
+        if (problemContext == null) {
+            throw new IllegalArgumentException("ProblemContext not found for the given UUID");
         }
-        return null;
+        problemContext.setName(name);
+        problemContext.setDate(date);
+        return new ContextDisplayInfoDTO(problemContext.getUuid(), name, date);
     }
 
     public boolean deleteContextDisplayInfo(UUID uuid) {
