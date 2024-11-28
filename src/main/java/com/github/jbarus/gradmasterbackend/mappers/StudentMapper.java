@@ -5,12 +5,13 @@ import com.github.jbarus.gradmasterbackend.models.dto.StudentDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 
 import java.util.List;
+import java.util.UUID;
 
 public class StudentMapper {
-    public static StudentDTO convertStudentListToStudentDTO(ProblemContext problemContext){
+    public static StudentDTO convertStudentListToStudentDTO(UUID contextId, List<Student> studentList){
         return StudentDTO.builder()
-                .id(problemContext.getUuid())
-                .students(problemContext.getStudents())
+                .id(contextId)
+                .students(studentList)
                 .build();
     }
 

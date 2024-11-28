@@ -31,7 +31,7 @@ public class StudentService {
         this.studentExtractionPipeline = studentExtractionPipeline;
     }
 
-    public UniversityEmployeeDTO handleStudentFile(MultipartFile file, UUID id) {
+    public StudentDTO handleStudentFile(MultipartFile file, UUID id) {
         XSSFWorkbook workbook;
 
         try {
@@ -64,7 +64,7 @@ public class StudentService {
             throw new UninitializedContextException("No such context");
         }
 
-        if (problemContext.getStudents() != null && problemContext.getStudentReviewerMapping() != null) {
+        if(problemContext.getStudents() != null && problemContext.getStudentReviewerMapping() != null) {
             throw new BusinessLogicException(UploadStatus.INVALIDUPDATESEQUENCE);
         }
 
@@ -85,37 +85,41 @@ public class StudentService {
         }
         for (List<Student> studentsWithoutReviewer : studentReviewerMap.values()) {
             students.addAll(studentsWithoutReviewer);
+            System.out.println(studentsWithoutReviewer);
         }
         problemContext.setStudents(students);
         problemContext.setStudentReviewerMapping(studentReviewerMapping);
 
-        return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
+        return StudentMapper.convertStudentListToStudentDTO(problemContext.getUuid(),problemContext.getStudents());
     }
 
-    public UniversityEmployeeDTO getStudentsByContext(UUID id) {
+    public StudentDTO getStudentsByContext(UUID id) {
+        ProblemContext problemContext = ProblemContext.getInstance(id);
+
+        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
+            throw new UninitializedContextException("No such context");
+        }
+        return StudentMapper.convertStudentListToStudentDTO(problemContext.getUuid(),problemContext.getStudents());
+    }
+
+    public StudentDTO updateStudentsByContext(UUID id, List<Student> students) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
 
         if (problemContext == null || problemContext.getUniversityEmployees() == null) {
             throw new UninitializedContextException("No such context");
         }
 
-        return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
-    }
-
-    public UniversityEmployeeDTO updateStudentsByContext(UUID id, UniversityEmployeeDTO employeeDTO) {
-        ProblemContext problemContext = ProblemContext.getInstance(id);
-
-        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
-            throw new UninitializedContextException("No such context");
-        }
-
-        if (problemContext.getStudents() == null && problemContext.getStudentReviewerMapping() == null) {
+        if(problemContext.getStudents() == null && problemContext.getStudentReviewerMapping() == null) {
             throw new BusinessLogicException(UploadStatus.UNINITIALIZED_CONTEXT);
         }
 
-        List<UniversityEmployee> updatedEmployees = UniversityEmployeeMapper.converUniversityEmployeeDTOtoUniversityEmployeeList(employeeDTO);
-        problemContext.setUniversityEmployees(updatedEmployees);
+        for (Student student : students) {
+            if(problemContext.getStudents().stream().map(Student::getId).toList().contains(student.getId())) {
+                throw new BusinessLogicException(UploadStatus.UNAUTHORIZEDMODIFICATION);
+            }
+        }
 
-        return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
+        problemContext.setStudents(students);
+        return StudentMapper.convertStudentListToStudentDTO(problemContext.getUuid(),problemContext.getStudents());
     }
 }
