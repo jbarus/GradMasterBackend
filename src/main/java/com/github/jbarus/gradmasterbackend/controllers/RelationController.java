@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.models.dto.RelationDTO;
 import com.github.jbarus.gradmasterbackend.services.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,28 +21,23 @@ public class RelationController {
     }
 
     @PostMapping("/positive/{contextId}")
-    public ResponseEntity<?> addPositiveRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.addPositiveRelation(contextId, relations));
+    public ResponseEntity<?> addPositiveRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
+        return handleRelationOperation(() -> relationService.addPositiveRelation(contextId, relationDTO));
     }
 
     @PostMapping("/negative/{contextId}")
-    public ResponseEntity<?> addNegativeRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.addNegativeRelation(contextId, relations));
+    public ResponseEntity<?> addNegativeRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
+        return handleRelationOperation(() -> relationService.addNegativeRelation(contextId, relationDTO));
     }
 
     @PutMapping("/positive/{contextId}")
-    public ResponseEntity<?> updatePositiveRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.updatePositiveRelation(contextId, relations));
+    public ResponseEntity<?> updatePositiveRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
+        return handleRelationOperation(() -> relationService.updatePositiveRelation(contextId, relationDTO));
     }
 
     @PutMapping("/negative/{contextId}")
-    public ResponseEntity<?> updateNegativeRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.updateNegativeRelation(contextId, relations));
-    }
-
-    @GetMapping("/all/{contextId}")
-    public ResponseEntity<?> getAllRelations(@PathVariable UUID contextId) {
-        return handleRelationOperation(() -> relationService.getAllRelations(contextId));
+    public ResponseEntity<?> updateNegativeRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
+        return handleRelationOperation(() -> relationService.updateNegativeRelation(contextId, relationDTO));
     }
 
     @GetMapping("/positive/{contextId}")

@@ -1,5 +1,7 @@
 package com.github.jbarus.gradmasterbackend.services;
 
+import com.github.jbarus.gradmasterbackend.mappers.ProblemParametersMapper;
+import com.github.jbarus.gradmasterbackend.models.dto.ProblemParametersDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemParameters;
 import org.springframework.stereotype.Service;
@@ -10,23 +12,23 @@ import java.util.UUID;
 @Service
 public class ProblemParametersService {
 
-    public ProblemParameters setProblemParameters(UUID contextId, ProblemParameters problemParameters) {
+    public ProblemParametersDTO setProblemParameters(UUID contextId, ProblemParameters problemParameters) {
         validateProblemParameters(problemParameters);
         ProblemContext context = getValidContextWithEmployees(contextId);
         context.setProblemParameters(problemParameters);
-        return context.getProblemParameters();
+        return ProblemParametersMapper.convertProblemParametersToProblemParametersDTO(contextId,context.getProblemParameters());
     }
 
-    public ProblemParameters getProblemParameters(UUID contextId) {
+    public ProblemParametersDTO getProblemParameters(UUID contextId) {
         ProblemContext context = getValidContextWithEmployees(contextId);
-        return context.getProblemParameters();
+        return ProblemParametersMapper.convertProblemParametersToProblemParametersDTO(contextId,context.getProblemParameters());
     }
 
-    public ProblemParameters updateProblemParameters(UUID contextId, ProblemParameters problemParameters) {
+    public ProblemParametersDTO updateProblemParameters(UUID contextId, ProblemParameters problemParameters) {
         validateProblemParameters(problemParameters);
         ProblemContext context = getValidContextWithEmployees(contextId);
         context.setProblemParameters(problemParameters);
-        return context.getProblemParameters();
+        return ProblemParametersMapper.convertProblemParametersToProblemParametersDTO(contextId,context.getProblemParameters());
     }
 
     private ProblemContext getValidContextWithEmployees(UUID contextId) {

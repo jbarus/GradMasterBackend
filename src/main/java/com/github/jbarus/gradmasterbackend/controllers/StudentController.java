@@ -7,6 +7,7 @@ import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.communication.Response;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
 import com.github.jbarus.gradmasterbackend.models.dto.StudentDTO;
+import com.github.jbarus.gradmasterbackend.models.dto.UniversityEmployeeDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.services.StudentService;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class StudentController {
             return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT));
         }
         try {
-            StudentDTO result = studentService.handleStudentFile(file, id);
+            UniversityEmployeeDTO result = studentService.handleStudentFile(file, id);
             return ResponseEntity.ok(new Response<>(UploadStatus.SUCCESS, result));
         } catch (InvalidInputException e) {
             return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT));
@@ -45,18 +46,18 @@ public class StudentController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getStudentsByContext(@PathVariable UUID id) {
         try {
-            List<Student> students = studentService.getStudentsByContext(id);
-            return ResponseEntity.ok(students);
+            UniversityEmployeeDTO result = studentService.getStudentsByContext(id);
+            return ResponseEntity.ok(result);
         } catch (UninitializedContextException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateStudentsByContext(@PathVariable UUID id, @RequestBody List<Student> students) {
+    public ResponseEntity<?> updateStudentsByContext(@PathVariable UUID id, @RequestBody UniversityEmployeeDTO employeeDTO) {
         try {
-            List<Student> updatedStudents = studentService.updateStudentsByContext(id, students);
-            return ResponseEntity.ok(updatedStudents);
+            UniversityEmployeeDTO updatedResult = studentService.updateStudentsByContext(id, employeeDTO);
+            return ResponseEntity.ok(updatedResult);
         } catch (UninitializedContextException e) {
             return ResponseEntity.badRequest().build();
         }

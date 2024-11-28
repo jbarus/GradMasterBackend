@@ -2,10 +2,12 @@ package com.github.jbarus.gradmasterbackend.services;
 
 import com.github.jbarus.gradmasterbackend.exceptions.*;
 import com.github.jbarus.gradmasterbackend.mappers.StudentMapper;
+import com.github.jbarus.gradmasterbackend.mappers.UniversityEmployeeMapper;
 import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
 import com.github.jbarus.gradmasterbackend.models.dto.StudentDTO;
+import com.github.jbarus.gradmasterbackend.models.dto.UniversityEmployeeDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.pipelines.StudentExtractionPipeline;
 import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentFormatFilter;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -28,7 +31,7 @@ public class StudentService {
         this.studentExtractionPipeline = studentExtractionPipeline;
     }
 
-    public StudentDTO handleStudentFile(MultipartFile file, UUID id) {
+    public UniversityEmployeeDTO handleStudentFile(MultipartFile file, UUID id) {
         XSSFWorkbook workbook;
 
         try {
@@ -61,7 +64,7 @@ public class StudentService {
             throw new UninitializedContextException("No such context");
         }
 
-        if(problemContext.getStudents() != null && problemContext.getStudentReviewerMapping() != null) {
+        if (problemContext.getStudents() != null && problemContext.getStudentReviewerMapping() != null) {
             throw new BusinessLogicException(UploadStatus.INVALIDUPDATESEQUENCE);
         }
 
@@ -82,41 +85,37 @@ public class StudentService {
         }
         for (List<Student> studentsWithoutReviewer : studentReviewerMap.values()) {
             students.addAll(studentsWithoutReviewer);
-            System.out.println(studentsWithoutReviewer);
         }
         problemContext.setStudents(students);
         problemContext.setStudentReviewerMapping(studentReviewerMapping);
 
-        return StudentMapper.convertStudentListToStudentDTO(problemContext);
+        return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
     }
 
-    public List<Student> getStudentsByContext(UUID id) {
+    public UniversityEmployeeDTO getStudentsByContext(UUID id) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
 
         if (problemContext == null || problemContext.getUniversityEmployees() == null) {
             throw new UninitializedContextException("No such context");
         }
 
-        return problemContext.getStudents();
+        return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
     }
 
-    public List<Student> updateStudentsByContext(UUID id, List<Student> students) {
+    public UniversityEmployeeDTO updateStudentsByContext(UUID id, UniversityEmployeeDTO employeeDTO) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
 
         if (problemContext == null || problemContext.getUniversityEmployees() == null) {
             throw new UninitializedContextException("No such context");
         }
 
-        if(problemContext.getStudents() == null && problemContext.getStudentReviewerMapping() == null) {
+        if (problemContext.getStudents() == null && problemContext.getStudentReviewerMapping() == null) {
             throw new BusinessLogicException(UploadStatus.UNINITIALIZED_CONTEXT);
         }
 
-        for (Student student : students) {
-            if(problemContext.getStudents().contains(student))
-                throw new BusinessLogicException(UploadStatus.UNAUTHORIZEDMODIFICATION);
-        }
+        List<UniversityEmployee> updatedEmployees = UniversityEmployeeMapper.converUniversityEmployeeDTOtoUniversityEmployeeList(employeeDTO);
+        problemContext.setUniversityEmployees(updatedEmployees);
 
-        problemContext.setStudents(students);
-        return problemContext.getStudents();
+        return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
     }
 }

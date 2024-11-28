@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.models.dto.ProblemParametersDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemParameters;
 import com.github.jbarus.gradmasterbackend.services.ProblemParametersService;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +19,11 @@ public class ProblemParametersController {
     }
 
     @PostMapping("/{contextId}")
-    public ResponseEntity<ProblemParameters> setProblemParameters(
+    public ResponseEntity<ProblemParametersDTO> setProblemParameters(
             @PathVariable UUID contextId,
             @RequestBody ProblemParameters problemParameters) {
         try {
-            ProblemParameters result = problemParametersService.setProblemParameters(contextId, problemParameters);
+            ProblemParametersDTO result = problemParametersService.setProblemParameters(contextId, problemParameters);
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(null);
@@ -30,9 +31,9 @@ public class ProblemParametersController {
     }
 
     @GetMapping("/{contextId}")
-    public ResponseEntity<ProblemParameters> getProblemParameters(@PathVariable UUID contextId) {
+    public ResponseEntity<ProblemParametersDTO> getProblemParameters(@PathVariable UUID contextId) {
         try {
-            ProblemParameters result = problemParametersService.getProblemParameters(contextId);
+            ProblemParametersDTO result = problemParametersService.getProblemParameters(contextId);
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(null);
@@ -40,11 +41,11 @@ public class ProblemParametersController {
     }
 
     @PutMapping("/{contextId}")
-    public ResponseEntity<ProblemParameters> updateProblemParameters(
+    public ResponseEntity<ProblemParametersDTO> updateProblemParameters(
             @PathVariable UUID contextId,
             @RequestBody ProblemParameters problemParameters) {
         try {
-            ProblemParameters result = problemParametersService.updateProblemParameters(contextId, problemParameters);
+            ProblemParametersDTO result = problemParametersService.updateProblemParameters(contextId, problemParameters);
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(null);

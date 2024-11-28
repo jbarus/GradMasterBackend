@@ -25,7 +25,7 @@ public class UniversityEmployeeController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> uploadUniversityEmployeesFile(@RequestParam("universityEmployees") MultipartFile file, @PathVariable UUID id) {
+    public ResponseEntity<?> uploadUniversityEmployeesFileByContextId(@RequestParam("universityEmployees") MultipartFile file, @PathVariable UUID id) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(new Response<>(UploadStatus.INVALID_INPUT));
         }
@@ -43,20 +43,20 @@ public class UniversityEmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUniversityEmployeeByContext(@PathVariable UUID id) {
+    public ResponseEntity<?> getUniversityEmployeeByContextId(@PathVariable UUID id) {
         try {
-            List<UniversityEmployee> employees = universityEmployeeService.getUniversityEmployeeByContext(id);
-            return ResponseEntity.ok(employees);
+            UniversityEmployeeDTO result = universityEmployeeService.getUniversityEmployeeByContext(id);
+            return ResponseEntity.ok(result);
         } catch (UninitializedContextException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUniversityEmployeeByContext(@PathVariable UUID id, @RequestBody List<UniversityEmployee> universityEmployees) {
+    public ResponseEntity<?> updateUniversityEmployeeByContextId(@PathVariable UUID id, @RequestBody UniversityEmployeeDTO employeeDTO) {
         try {
-            List<UniversityEmployee> updatedEmployees = universityEmployeeService.updateUniversityEmployeeByContext(id, universityEmployees);
-            return ResponseEntity.ok(updatedEmployees);
+            UniversityEmployeeDTO updatedResult = universityEmployeeService.updateUniversityEmployeeByContext(id, employeeDTO);
+            return ResponseEntity.ok(updatedResult);
         } catch (UninitializedContextException e) {
             return ResponseEntity.badRequest().build();
         }
