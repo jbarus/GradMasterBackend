@@ -27,7 +27,7 @@ public class ProblemController {
             ProblemDTO problemDTO = problemService.publishProblem(contextId);
             return ResponseEntity.ok(new Response<>(CalculationStartStatus.SUCCESS, problemDTO));
         } catch (NoSuchContextException e) {
-            return ResponseEntity.badRequest().body(new Response<>(CalculationStartStatus.NO_SUCH_CONTEXT));
+            return ResponseEntity.badRequest().body(new Response<>(CalculationStartStatus.UNINITIALIZED_CONTEXT));
         } catch (MissingDataException e) {
             return ResponseEntity.badRequest().body(new Response<>(e.getStatus()));
         } catch (BusinessLogicException e) {

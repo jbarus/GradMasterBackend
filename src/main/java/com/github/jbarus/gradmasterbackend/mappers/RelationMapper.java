@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.mappers;
 
+import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.dto.RelationDTO;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class RelationMapper {
-    public static RelationDTO convertRelationListToRelationDTO(UUID id, List<UUID> relationList) {
+    public static RelationDTO convertRelationListToRelationDTO(UUID id, List<UniversityEmployee> relationList) {
         if (relationList == null) {
             return null;
         }
@@ -19,7 +20,7 @@ public class RelationMapper {
                 .build();
     }
 
-    public static List<UUID> convertRelationDTOToRelationList(RelationDTO dto) {
+    public static List<UniversityEmployee> convertRelationDTOToRelationList(RelationDTO dto) {
         if (dto == null || dto.getRelationList() == null) {
             return null;
         }

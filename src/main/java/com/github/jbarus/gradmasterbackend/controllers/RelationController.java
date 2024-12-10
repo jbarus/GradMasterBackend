@@ -21,23 +21,23 @@ public class RelationController {
     }
 
     @PostMapping("/positive/{contextId}")
-    public ResponseEntity<?> addPositiveRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
-        return handleRelationOperation(() -> relationService.addPositiveRelation(contextId, relationDTO));
+    public ResponseEntity<?> addPositiveRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
+        return handleRelationOperation(() -> relationService.addPositiveRelation(contextId, relations));
     }
 
     @PostMapping("/negative/{contextId}")
-    public ResponseEntity<?> addNegativeRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
-        return handleRelationOperation(() -> relationService.addNegativeRelation(contextId, relationDTO));
+    public ResponseEntity<?> addNegativeRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
+        return handleRelationOperation(() -> relationService.addNegativeRelation(contextId, relations));
     }
 
     @PutMapping("/positive/{contextId}")
-    public ResponseEntity<?> updatePositiveRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
-        return handleRelationOperation(() -> relationService.updatePositiveRelation(contextId, relationDTO));
+    public ResponseEntity<?> updatePositiveRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
+        return handleRelationOperation(() -> relationService.updatePositiveRelation(contextId, relations));
     }
 
     @PutMapping("/negative/{contextId}")
-    public ResponseEntity<?> updateNegativeRelation(@PathVariable UUID contextId, @RequestBody RelationDTO relationDTO) {
-        return handleRelationOperation(() -> relationService.updateNegativeRelation(contextId, relationDTO));
+    public ResponseEntity<?> updateNegativeRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
+        return handleRelationOperation(() -> relationService.updateNegativeRelation(contextId, relations));
     }
 
     @GetMapping("/positive/{contextId}")

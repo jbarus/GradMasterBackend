@@ -10,7 +10,7 @@ public enum CalculationStartStatus {
     MISSING_OR_INCOMPLETE_UNIVERSITY_EMPLOYEE(2001, "Missing university employees"),
     MISSING_OR_INCOMPLETE_STUDENT(2002, "Missing or incomplete students"),
     MISSING_OR_INCOMPLETE_PROBLEM_PARAMETER(2003, "Missing or incomplete problem parameters"),
-    NO_SUCH_CONTEXT(2004, "No such context"),
+    UNINITIALIZED_CONTEXT(2004, "No such context"),
     INVALID_UNIVERSITY_EMPLOYEE_NUMBER(2005, "Invalid number of university employees"),
     MISSING_STUDENT_REVIEWER_MAPPING(2006, "Missing student reviewer mapping"),
     UNDEFINED(2007, "Undefined error"),

@@ -4,6 +4,7 @@ import com.github.jbarus.gradmasterbackend.mappers.RelationMapper;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.dto.RelationDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
+import com.github.jbarus.gradmasterbackend.utils.ContextUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -11,20 +12,20 @@ import java.util.*;
 
 @Service
 public class RelationService {
-    public RelationDTO addPositiveRelation(UUID contextId, RelationDTO relationDTO) {
-        return addRelation(contextId, relationDTO, RelationType.POSITIVE);
+    public RelationDTO addPositiveRelation(UUID contextId, List<UUID> relations) {
+        return addRelation(contextId, relations, RelationType.POSITIVE);
     }
 
-    public RelationDTO addNegativeRelation(UUID contextId, RelationDTO relationDTO) {
-        return addRelation(contextId, relationDTO, RelationType.NEGATIVE);
+    public RelationDTO addNegativeRelation(UUID contextId, List<UUID> relations) {
+        return addRelation(contextId, relations, RelationType.NEGATIVE);
     }
 
-    public RelationDTO updatePositiveRelation(UUID contextId, RelationDTO relationDTO) {
-        return updateRelation(contextId, relationDTO, RelationType.POSITIVE);
+    public RelationDTO updatePositiveRelation(UUID contextId, List<UUID> relations) {
+        return updateRelation(contextId, relations, RelationType.POSITIVE);
     }
 
-    public RelationDTO updateNegativeRelation(UUID contextId, RelationDTO relationDTO) {
-        return updateRelation(contextId, relationDTO, RelationType.NEGATIVE);
+    public RelationDTO updateNegativeRelation(UUID contextId, List<UUID> relations) {
+        return updateRelation(contextId, relations, RelationType.NEGATIVE);
     }
 
     public RelationDTO getPositiveRelations(UUID contextId) {
@@ -35,31 +36,30 @@ public class RelationService {
         return getRelations(contextId, RelationType.NEGATIVE);
     }
 
-    private RelationDTO addRelation(UUID contextId, RelationDTO relationDTO, RelationType type) {
-        List<UUID> relations = RelationMapper.convertRelationDTOToRelationList(relationDTO);
+    private RelationDTO addRelation(UUID contextId, List<UUID> relations, RelationType type) {
         validateRelations(contextId, relations);
         ProblemContext context = getValidContext(contextId);
 
         if (type == RelationType.POSITIVE) {
             context.setPositiveCorrelationMapping(relations);
-            return RelationMapper.convertRelationListToRelationDTO(contextId, context.getPositiveCorrelationMapping());
+            return RelationMapper.convertRelationListToRelationDTO(contextId, ContextUtils.getPositiveRelationListByProblemContext(context));
         } else {
             context.setNegativeCorrelationMapping(relations);
-            return RelationMapper.convertRelationListToRelationDTO(contextId, context.getNegativeCorrelationMapping());
+            return RelationMapper.convertRelationListToRelationDTO(contextId, ContextUtils.getNegativeRelationListByProblemContext(context));
         }
     }
 
-    private RelationDTO updateRelation(UUID contextId, RelationDTO relationDTO, RelationType type) {
-        return addRelation(contextId, relationDTO, type);
+    private RelationDTO updateRelation(UUID contextId, List<UUID> relations, RelationType type) {
+        return addRelation(contextId, relations, type);
     }
 
     private RelationDTO getRelations(UUID contextId, RelationType type) {
         ProblemContext context = getValidContext(contextId);
-        List<UUID> relationIds = type == RelationType.POSITIVE
-                ? context.getPositiveCorrelationMapping()
-                : context.getNegativeCorrelationMapping();
+        List<UniversityEmployee> relations = type == RelationType.POSITIVE
+                ? ContextUtils.getPositiveRelationListByProblemContext(context)
+                : ContextUtils.getNegativeRelationListByProblemContext(context);
 
-        return RelationMapper.convertRelationListToRelationDTO(contextId, relationIds);
+        return RelationMapper.convertRelationListToRelationDTO(contextId, relations);
     }
 
     private ProblemContext getValidContext(UUID contextId) {

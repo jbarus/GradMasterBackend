@@ -96,7 +96,7 @@ public class StudentService {
     public StudentDTO getStudentsByContext(UUID id) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
 
-        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
+        if (problemContext == null || problemContext.getStudents() == null) {
             throw new UninitializedContextException("No such context");
         }
         return StudentMapper.convertStudentListToStudentDTO(problemContext.getUuid(),problemContext.getStudents());

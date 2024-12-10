@@ -19,6 +19,7 @@ public class SolutionMapper {
         Solution solution = new Solution();
         solution.setCommittees(solutionDTO.getCommittees());
         solution.setUnassignedStudents(solutionDTO.getUnassignedStudents());
+        solution.setUnassignedUniversityEmployees(solutionDTO.getUnassignedUniversityEmployees());
         return solution;
     }
 }

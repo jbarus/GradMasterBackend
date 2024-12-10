@@ -6,6 +6,8 @@ import com.github.jbarus.gradmasterbackend.models.problem.Solution;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+
 @Component
 public class SolutionListener {
     @RabbitListener(queues = RabbitMQConfig.SOLUTION_QUEUE_NAME)
@@ -17,6 +19,7 @@ public class SolutionListener {
         Solution solution = new Solution();
         solution.setCommittees(solutionDTO.getCommittees());
         solution.setUnassignedStudents(solutionDTO.getUnassignedStudents());
+        solution.setUnassignedUniversityEmployees(new ArrayList<>());
         problemContext.setSolution(solution);
         problemContext.setInProgress(false);
     }
