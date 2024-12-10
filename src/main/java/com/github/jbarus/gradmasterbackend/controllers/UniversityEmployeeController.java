@@ -53,9 +53,9 @@ public class UniversityEmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUniversityEmployeeByContextId(@PathVariable UUID id, @RequestBody UniversityEmployeeDTO employeeDTO) {
+    public ResponseEntity<?> updateUniversityEmployeeByContextId(@PathVariable UUID id, @RequestBody List<UniversityEmployee> updatedEmployees) {
         try {
-            UniversityEmployeeDTO updatedResult = universityEmployeeService.updateUniversityEmployeeByContext(id, employeeDTO);
+            UniversityEmployeeDTO updatedResult = universityEmployeeService.updateUniversityEmployeeByContext(id, updatedEmployees);
             return ResponseEntity.ok(updatedResult);
         } catch (UninitializedContextException e) {
             return ResponseEntity.badRequest().build();

@@ -109,12 +109,12 @@ public class StudentService {
             throw new UninitializedContextException("No such context");
         }
 
-        if(problemContext.getStudents() == null && problemContext.getStudentReviewerMapping() == null) {
+        if(problemContext.getStudents() == null || problemContext.getStudentReviewerMapping() == null) {
             throw new BusinessLogicException(UploadStatus.UNINITIALIZED_CONTEXT);
         }
 
         for (Student student : students) {
-            if(problemContext.getStudents().stream().map(Student::getId).toList().contains(student.getId())) {
+            if(!problemContext.getStudents().stream().map(Student::getId).toList().contains(student.getId())) {
                 throw new BusinessLogicException(UploadStatus.UNAUTHORIZEDMODIFICATION);
             }
         }

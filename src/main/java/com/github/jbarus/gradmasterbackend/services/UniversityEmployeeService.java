@@ -2,6 +2,7 @@ package com.github.jbarus.gradmasterbackend.services;
 
 import com.github.jbarus.gradmasterbackend.exceptions.*;
 import com.github.jbarus.gradmasterbackend.mappers.UniversityEmployeeMapper;
+import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.communication.Response;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
@@ -76,16 +77,18 @@ public class UniversityEmployeeService {
         return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
     }
 
-    public UniversityEmployeeDTO updateUniversityEmployeeByContext(UUID id, UniversityEmployeeDTO employeeDTO) {
+    public UniversityEmployeeDTO updateUniversityEmployeeByContext(UUID id, List<UniversityEmployee> updatedEmployees) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
 
         if (problemContext == null || problemContext.getUniversityEmployees() == null) {
             throw new UninitializedContextException("No such context");
         }
-
-        List<UniversityEmployee> updatedEmployees = UniversityEmployeeMapper.converUniversityEmployeeDTOtoUniversityEmployeeList(employeeDTO);
+        for (UniversityEmployee universityEmployee : updatedEmployees) {
+            if(!problemContext.getUniversityEmployees().stream().map(UniversityEmployee::getId).toList().contains(universityEmployee.getId())) {
+                throw new BusinessLogicException(UploadStatus.UNAUTHORIZEDMODIFICATION);
+            }
+        }
         problemContext.setUniversityEmployees(updatedEmployees);
-
         return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
     }
 }
