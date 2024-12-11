@@ -62,7 +62,7 @@ public class StudentController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<?> updateStudentsByContext(@PathVariable UUID id, @RequestBody List<Student> students) {
         try {
             StudentDTO updatedStudents = studentService.updateStudentsByContext(id, students);

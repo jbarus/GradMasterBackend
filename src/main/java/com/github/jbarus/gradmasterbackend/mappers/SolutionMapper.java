@@ -15,6 +15,7 @@ public class SolutionMapper {
         solutionDTO.setCommittees(problemContext.getSolution().getCommittees());
         solutionDTO.setId(problemContext.getUuid());
         solutionDTO.setUnassignedStudents(problemContext.getSolution().getUnassignedStudents());
+        solutionDTO.setUnassignedUniversityEmployees(problemContext.getSolution().getUnassignedUniversityEmployees());
         return solutionDTO;
     }
 

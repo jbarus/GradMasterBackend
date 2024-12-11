@@ -40,8 +40,6 @@ public class StudentService {
             studentExtractionPipeline.doFilter(workbook);
         } catch (MissingColumnsException e) {
             throw new BusinessLogicException(UploadStatus.INVALID_CONTENT);
-        } catch (MultipleDatesException e) {
-            throw new BusinessLogicException(UploadStatus.MULTIPLE_DATES);
         } catch (Exception e) {
             throw new BusinessLogicException(UploadStatus.PARSING_ERROR);
         }
