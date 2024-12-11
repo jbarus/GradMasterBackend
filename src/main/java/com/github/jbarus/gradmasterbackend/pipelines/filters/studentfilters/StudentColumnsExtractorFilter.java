@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Component
 @FilterGroup({
-        @FilterOrder(group = FilterGroupType.STUDENT, order = 2)
+        @FilterOrder(group = FilterGroupType.STUDENT, order = 1)
 })
 public class StudentColumnsExtractorFilter implements XLSXFilter {
     Set<String> columnsToKeep = new HashSet<>(List.of(

@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @FilterGroup({
-        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 4),
-        @FilterOrder(group = FilterGroupType.STUDENT, order = 4)
+        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 3),
+        @FilterOrder(group = FilterGroupType.STUDENT, order = 3)
 })
 public class BlankCellsFilter implements XLSXFilter {
     @Override

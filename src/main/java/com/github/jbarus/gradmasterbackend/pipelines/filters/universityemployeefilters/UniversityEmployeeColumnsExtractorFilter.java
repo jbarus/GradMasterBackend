@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Component
 @FilterGroup({
-        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 2)
+        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 1)
 })
 public class UniversityEmployeeColumnsExtractorFilter implements XLSXFilter {
 
@@ -24,7 +24,6 @@ public class UniversityEmployeeColumnsExtractorFilter implements XLSXFilter {
             "NAZWISKO",
             "IMIE",
             "CZY_HABILITOWANY",
-            "DATA_DOSTEPNOSCI",
             "POCZATEK_DOSTEPNOSCI",
             "KONIEC_DOSTEPNOSCI",
             "DLUGOSC_KOMISJI"

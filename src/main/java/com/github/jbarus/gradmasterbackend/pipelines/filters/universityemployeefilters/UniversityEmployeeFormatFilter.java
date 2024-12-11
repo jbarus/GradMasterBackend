@@ -22,7 +22,6 @@ public class UniversityEmployeeFormatFilter implements XLSXFilter {
             "NAZWISKO",
             "IMIE",
             "CZY_HABILITOWANY",
-            "DATA_DOSTEPNOSCI",
             "POCZATEK_DOSTEPNOSCI",
             "KONIEC_DOSTEPNOSCI",
             "DLUGOSC_KOMISJI"

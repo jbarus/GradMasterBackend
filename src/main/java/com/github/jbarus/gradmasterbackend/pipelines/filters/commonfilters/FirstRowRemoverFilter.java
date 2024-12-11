@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @FilterGroup({
-        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 3),
-        @FilterOrder(group = FilterGroupType.STUDENT, order = 3)
+        @FilterOrder(group = FilterGroupType.UNIVERSITY_EMPLOYEE, order = 2),
+        @FilterOrder(group = FilterGroupType.STUDENT, order = 2)
 })
 public class FirstRowRemoverFilter implements XLSXFilter {
     @Override

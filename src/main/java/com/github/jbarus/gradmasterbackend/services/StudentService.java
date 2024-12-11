@@ -2,16 +2,12 @@ package com.github.jbarus.gradmasterbackend.services;
 
 import com.github.jbarus.gradmasterbackend.exceptions.*;
 import com.github.jbarus.gradmasterbackend.mappers.StudentMapper;
-import com.github.jbarus.gradmasterbackend.mappers.UniversityEmployeeMapper;
 import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
 import com.github.jbarus.gradmasterbackend.models.dto.StudentDTO;
-import com.github.jbarus.gradmasterbackend.models.dto.UniversityEmployeeDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.pipelines.StudentExtractionPipeline;
-import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentFormatFilter;
-import com.github.jbarus.gradmasterbackend.pipelines.filters.studentfilters.StudentMajorFilter;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -21,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -41,7 +36,6 @@ public class StudentService {
         }
 
         try {
-            studentExtractionPipeline.addFilterAfter(StudentFormatFilter.class, new StudentMajorFilter());
             studentExtractionPipeline.doFilter(workbook);
         } catch (MissingColumnsException e) {
             throw new BusinessLogicException(UploadStatus.INVALID_CONTENT);

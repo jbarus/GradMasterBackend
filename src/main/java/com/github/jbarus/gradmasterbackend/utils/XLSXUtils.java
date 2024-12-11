@@ -37,9 +37,9 @@ public class XLSXUtils {
                     rowData.get(1),
                     rowData.get(0),
                     convertStringToBoolean(rowData.get(2)),
+                    LocalTime.parse(rowData.get(3), DateTimeFormatter.ofPattern("h:mm:ss a")),
                     LocalTime.parse(rowData.get(4), DateTimeFormatter.ofPattern("h:mm:ss a")),
-                    LocalTime.parse(rowData.get(5), DateTimeFormatter.ofPattern("h:mm:ss a")),
-                    Integer.parseInt(rowData.get(6))
+                    Integer.parseInt(rowData.get(5))
             ));
         }
         return universityEmployees;

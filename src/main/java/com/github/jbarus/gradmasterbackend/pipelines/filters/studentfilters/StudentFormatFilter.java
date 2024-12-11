@@ -21,8 +21,7 @@ public class StudentFormatFilter implements XLSXFilter {
     Set<String> columnsToKeep = new HashSet<>(List.of(
             "IMIE",
             "NAZWISKO",
-            "RECENZENT",
-            "DATA_OBRONY"
+            "RECENZENT"
     ));
 
 
