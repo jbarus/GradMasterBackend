@@ -9,6 +9,9 @@ import java.util.UUID;
 
 public class StudentMapper {
     public static StudentDTO convertStudentListToStudentDTO(UUID contextId, List<Student> studentList){
+        if (contextId == null || studentList == null) {
+            return null;
+        }
         return StudentDTO.builder()
                 .id(contextId)
                 .students(studentList)
@@ -16,6 +19,9 @@ public class StudentMapper {
     }
 
     public static List<Student> converStudentDTOtoStudentList(StudentDTO studentDTO){
+        if (studentDTO == null) {
+            return null;
+        }
         return studentDTO.getStudents();
     }
 }

@@ -1,31 +1,33 @@
 package com.github.jbarus.gradmasterbackend.services;
 
+import com.github.jbarus.gradmasterbackend.exceptions.MalformedRequestException;
+import com.github.jbarus.gradmasterbackend.exceptions.NoSuchDataException;
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.NoSuchContextException;
 import com.github.jbarus.gradmasterbackend.mappers.RelationMapper;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
 import com.github.jbarus.gradmasterbackend.models.dto.RelationDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.utils.ContextUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class RelationService {
-    public RelationDTO addPositiveRelation(UUID contextId, List<UUID> relations) {
-        return addRelation(contextId, relations, RelationType.POSITIVE);
+    public RelationDTO addPositiveRelations(UUID contextId, List<UUID> relations) {
+        return addRelations(contextId, relations, RelationType.POSITIVE);
     }
 
-    public RelationDTO addNegativeRelation(UUID contextId, List<UUID> relations) {
-        return addRelation(contextId, relations, RelationType.NEGATIVE);
+    public RelationDTO addNegativeRelations(UUID contextId, List<UUID> relations) {
+        return addRelations(contextId, relations, RelationType.NEGATIVE);
     }
 
-    public RelationDTO updatePositiveRelation(UUID contextId, List<UUID> relations) {
-        return updateRelation(contextId, relations, RelationType.POSITIVE);
+    public RelationDTO updatePositiveRelations(UUID contextId, List<UUID> relations) {
+        return updateRelations(contextId, relations, RelationType.POSITIVE);
     }
 
-    public RelationDTO updateNegativeRelation(UUID contextId, List<UUID> relations) {
-        return updateRelation(contextId, relations, RelationType.NEGATIVE);
+    public RelationDTO updateNegativeRelations(UUID contextId, List<UUID> relations) {
+        return updateRelations(contextId, relations, RelationType.NEGATIVE);
     }
 
     public RelationDTO getPositiveRelations(UUID contextId) {
@@ -36,7 +38,15 @@ public class RelationService {
         return getRelations(contextId, RelationType.NEGATIVE);
     }
 
-    private RelationDTO addRelation(UUID contextId, List<UUID> relations, RelationType type) {
+    public RelationDTO deletePositiveRelations(UUID contextId) {
+        return deleteRelations(contextId, RelationType.POSITIVE);
+    }
+
+    public RelationDTO deleteNegativeRelations(UUID contextId) {
+        return deleteRelations(contextId, RelationType.NEGATIVE);
+    }
+
+    private RelationDTO addRelations(UUID contextId, List<UUID> relations, RelationType type) {
         validateRelations(contextId, relations);
         ProblemContext context = getValidContext(contextId);
 
@@ -49,12 +59,31 @@ public class RelationService {
         }
     }
 
-    private RelationDTO updateRelation(UUID contextId, List<UUID> relations, RelationType type) {
-        return addRelation(contextId, relations, type);
+    private RelationDTO updateRelations(UUID contextId, List<UUID> relations, RelationType type) {
+        ProblemContext context = getValidContext(contextId);
+        if (type == RelationType.POSITIVE) {
+            if(context.getPositiveCorrelationMapping() == null) {
+                throw new NoSuchDataException("Invalid problem parameters ID: " + contextId);
+            }
+        } else {
+            if(context.getNegativeCorrelationMapping() == null) {
+                throw new NoSuchDataException("Invalid problem parameters ID: " + contextId);
+            }
+        }
+        return addRelations(contextId, relations, type);
     }
 
     private RelationDTO getRelations(UUID contextId, RelationType type) {
         ProblemContext context = getValidContext(contextId);
+        if (type == RelationType.POSITIVE) {
+            if(context.getPositiveCorrelationMapping() == null) {
+                throw new NoSuchDataException("Invalid problem parameters ID: " + contextId);
+            }
+        } else {
+            if(context.getNegativeCorrelationMapping() == null) {
+                throw new NoSuchDataException("Invalid problem parameters ID: " + contextId);
+            }
+        }
         List<UniversityEmployee> relations = type == RelationType.POSITIVE
                 ? ContextUtils.getPositiveRelationListByProblemContext(context)
                 : ContextUtils.getNegativeRelationListByProblemContext(context);
@@ -62,17 +91,40 @@ public class RelationService {
         return RelationMapper.convertRelationListToRelationDTO(contextId, relations);
     }
 
+    public RelationDTO deleteRelations(UUID contextId, RelationType type) {
+        ProblemContext context = getValidContext(contextId);
+        if (type == RelationType.POSITIVE) {
+            if(context.getPositiveCorrelationMapping() == null) {
+                throw new NoSuchDataException("Invalid problem parameters ID: " + contextId);
+            }
+        } else {
+            if(context.getNegativeCorrelationMapping() == null) {
+                throw new NoSuchDataException("Invalid problem parameters ID: " + contextId);
+            }
+        }
+        List<UniversityEmployee> relations = type == RelationType.POSITIVE
+                ? ContextUtils.getPositiveRelationListByProblemContext(context)
+                : ContextUtils.getNegativeRelationListByProblemContext(context);
+
+        if (type == RelationType.POSITIVE) {
+            context.setPositiveCorrelationMapping(null);
+        } else {
+            context.setNegativeCorrelationMapping(null);
+        }
+        return RelationMapper.convertRelationListToRelationDTO(contextId, relations);
+    }
+
     private ProblemContext getValidContext(UUID contextId) {
         ProblemContext context = ProblemContext.getInstance(contextId);
         if (context == null) {
-            throw new IllegalArgumentException("Invalid context ID: " + contextId);
+            throw new NoSuchContextException("Invalid context ID: " + contextId);
         }
         return context;
     }
 
     private void validateRelations(UUID contextId, List<UUID> relations) {
         if (relations.isEmpty() || relations.size() < 2 || relations.size() % 2 != 0) {
-            throw new IllegalArgumentException("Relations must contain at least two UUIDs and must be even in number.");
+            throw new MalformedRequestException("Relations must contain at least two UUIDs and must be even in number.");
         }
 
         ProblemContext context = getValidContext(contextId);
@@ -82,7 +134,7 @@ public class RelationService {
 
         for (UUID relationId : relations) {
             if (!validEmployeeIds.contains(relationId)) {
-                throw new IllegalArgumentException("Invalid UUID in relations: " + relationId);
+                throw new MalformedRequestException("Invalid UUID in relations: " + relationId);
             }
         }
     }

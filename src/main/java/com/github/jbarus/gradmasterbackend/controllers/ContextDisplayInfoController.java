@@ -1,5 +1,8 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.exceptions.MalformedRequestException;
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.NoSuchContextException;
+import com.github.jbarus.gradmasterbackend.models.ContextDisplayInfo;
 import com.github.jbarus.gradmasterbackend.models.dto.ContextDisplayInfoDTO;
 import com.github.jbarus.gradmasterbackend.services.ContextDisplayInfoService;
 import org.springframework.http.HttpStatus;
@@ -19,9 +22,16 @@ public class ContextDisplayInfoController {
     }
 
     @PostMapping
-    public ResponseEntity<ContextDisplayInfoDTO> createContextDisplayInfo(@RequestBody ContextDisplayInfoDTO requestDto) {
-        ContextDisplayInfoDTO createdContext = contextDisplayInfoService.createContextDisplayInfo(requestDto.getName(), requestDto.getDate());
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdContext);
+    public ResponseEntity<ContextDisplayInfoDTO> createContextDisplayInfo(@RequestBody ContextDisplayInfo contextDisplayInfo) {
+        try{
+            ContextDisplayInfoDTO createdContext = contextDisplayInfoService.createContextDisplayInfo(contextDisplayInfo.getName(), contextDisplayInfo.getDate());
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdContext);
+        } catch (MalformedRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
     }
 
     @GetMapping("/{uuid}")
@@ -29,36 +39,51 @@ public class ContextDisplayInfoController {
         try {
             ContextDisplayInfoDTO context = contextDisplayInfoService.getContextDisplayInfo(uuid);
             return ResponseEntity.ok(context);
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchContextException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     @GetMapping
     public ResponseEntity<List<ContextDisplayInfoDTO>> getAllContextDisplayInfos() {
-        List<ContextDisplayInfoDTO> contextList = contextDisplayInfoService.getAllContextDisplayInfos();
-        return ResponseEntity.ok(contextList);
+        try{
+            List<ContextDisplayInfoDTO> contextList = contextDisplayInfoService.getAllContextDisplayInfos();
+            return ResponseEntity.ok(contextList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
     }
 
-    @PutMapping("/{uuid}")
+    @PatchMapping("/{uuid}")
     public ResponseEntity<ContextDisplayInfoDTO> updateContextDisplayInfo(
             @PathVariable UUID uuid,
-            @RequestBody ContextDisplayInfoDTO requestDto
+            @RequestBody ContextDisplayInfo contextDisplayInfo
     ) {
         try {
-            ContextDisplayInfoDTO updatedContext = contextDisplayInfoService.updateContextDisplayInfo(uuid, requestDto.getName(), requestDto.getDate());
+            ContextDisplayInfoDTO updatedContext = contextDisplayInfoService.updateContextDisplayInfo(uuid, contextDisplayInfo.getName(), contextDisplayInfo.getDate());
             return ResponseEntity.ok(updatedContext);
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchContextException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (MalformedRequestException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     @DeleteMapping("/{uuid}")
-    public ResponseEntity<Void> deleteContextDisplayInfo(@PathVariable UUID uuid) {
-        if (contextDisplayInfoService.deleteContextDisplayInfo(uuid)) {
-            return ResponseEntity.ok().build();
-        } else {
+    public ResponseEntity<ContextDisplayInfoDTO> deleteContextDisplayInfo(@PathVariable UUID uuid) {
+        try{
+            ContextDisplayInfoDTO deletedContext = contextDisplayInfoService.deleteContextDisplayInfo(uuid);
+            return ResponseEntity.ok(deletedContext);
+        }catch (NoSuchContextException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+
     }
 }

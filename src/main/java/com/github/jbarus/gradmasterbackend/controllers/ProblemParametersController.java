@@ -1,8 +1,12 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
+import com.github.jbarus.gradmasterbackend.exceptions.MalformedRequestException;
+import com.github.jbarus.gradmasterbackend.exceptions.NoSuchDataException;
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.NoSuchContextException;
 import com.github.jbarus.gradmasterbackend.models.dto.ProblemParametersDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemParameters;
 import com.github.jbarus.gradmasterbackend.services.ProblemParametersService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +28,13 @@ public class ProblemParametersController {
             @RequestBody ProblemParameters problemParameters) {
         try {
             ProblemParametersDTO result = problemParametersService.setProblemParameters(contextId, problemParameters);
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        }catch (NoSuchContextException ex) {
+            return ResponseEntity.notFound().build();
+        }catch (MalformedRequestException e){
+            return ResponseEntity.badRequest().build();
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -35,20 +43,37 @@ public class ProblemParametersController {
         try {
             ProblemParametersDTO result = problemParametersService.getProblemParameters(contextId);
             return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(null);
+        }catch (NoSuchContextException | NoSuchDataException ex) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    @PutMapping("/{contextId}")
+    @PatchMapping("/{contextId}")
     public ResponseEntity<ProblemParametersDTO> updateProblemParameters(
             @PathVariable UUID contextId,
             @RequestBody ProblemParameters problemParameters) {
         try {
             ProblemParametersDTO result = problemParametersService.updateProblemParameters(contextId, problemParameters);
             return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException ex) {
+        }catch (NoSuchContextException | NoSuchDataException ex) {
+            return ResponseEntity.notFound().build();
+        }catch (MalformedRequestException e){
             return ResponseEntity.badRequest().body(null);
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    @DeleteMapping("/{contextId}")
+    public ResponseEntity<ProblemParametersDTO> deleteProblemParameters(@PathVariable UUID contextId) {
+        try {
+            ProblemParametersDTO result = problemParametersService.deleteProblemParameters(contextId);
+            return ResponseEntity.ok(result);
+        }catch (NoSuchContextException | NoSuchDataException ex) {
+            return ResponseEntity.notFound().build();
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }

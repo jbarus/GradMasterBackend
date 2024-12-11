@@ -8,6 +8,9 @@ import org.springframework.beans.factory.parsing.Problem;
 public class SolutionMapper {
 
     public static SolutionDTO convertSolutionToSolutionDTO(ProblemContext problemContext) {
+        if (problemContext.getSolution() == null) {
+            return null;
+        }
         SolutionDTO solutionDTO = new SolutionDTO();
         solutionDTO.setCommittees(problemContext.getSolution().getCommittees());
         solutionDTO.setId(problemContext.getUuid());
@@ -16,6 +19,9 @@ public class SolutionMapper {
     }
 
     public static Solution convertSolutionDTOToSolution(SolutionDTO solutionDTO) {
+        if (solutionDTO == null) {
+            return null;
+        }
         Solution solution = new Solution();
         solution.setCommittees(solutionDTO.getCommittees());
         solution.setUnassignedStudents(solutionDTO.getUnassignedStudents());

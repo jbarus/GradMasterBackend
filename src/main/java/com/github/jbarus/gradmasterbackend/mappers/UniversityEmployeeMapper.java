@@ -15,6 +15,9 @@ public class UniversityEmployeeMapper {
     }
 
     public static List<UniversityEmployee> converUniversityEmployeeDTOtoUniversityEmployeeList(UniversityEmployeeDTO employeeDTO){
+        if (employeeDTO == null) {
+            return null;
+        }
         return employeeDTO.getUniversityEmployees();
     }
 }

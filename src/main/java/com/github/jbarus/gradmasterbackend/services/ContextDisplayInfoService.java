@@ -1,5 +1,8 @@
 package com.github.jbarus.gradmasterbackend.services;
 
+import com.github.jbarus.gradmasterbackend.exceptions.MalformedRequestException;
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.NoSuchContextException;
+import com.github.jbarus.gradmasterbackend.mappers.ProblemContextMapper;
 import com.github.jbarus.gradmasterbackend.models.dto.ContextDisplayInfoDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,9 @@ import java.util.stream.Collectors;
 public class ContextDisplayInfoService {
 
     public ContextDisplayInfoDTO createContextDisplayInfo(String name, LocalDate date) {
+        if(name == null || name.isEmpty() || date == null) {
+            throw new MalformedRequestException("Name or Date not found for the given UUID");
+        }
         UUID uuid = UUID.randomUUID();
         ProblemContext problemContext = ProblemContext.getOrCreateInstance(uuid);
         problemContext.setName(name);
@@ -24,7 +30,7 @@ public class ContextDisplayInfoService {
     public ContextDisplayInfoDTO getContextDisplayInfo(UUID uuid) {
         ProblemContext problemContext = ProblemContext.getInstance(uuid);
         if (problemContext == null) {
-            throw new IllegalArgumentException("ProblemContext not found for the given UUID");
+            throw new NoSuchContextException("ProblemContext not found for the given UUID");
         }
         return new ContextDisplayInfoDTO(problemContext.getUuid(), problemContext.getName(), problemContext.getDate());
     }
@@ -38,14 +44,21 @@ public class ContextDisplayInfoService {
     public ContextDisplayInfoDTO updateContextDisplayInfo(UUID uuid, String name, LocalDate date) {
         ProblemContext problemContext = ProblemContext.getInstance(uuid);
         if (problemContext == null) {
-            throw new IllegalArgumentException("ProblemContext not found for the given UUID");
+            throw new NoSuchContextException("ProblemContext not found for the given UUID");
+        }
+        if(name == null || name.isEmpty() || date == null) {
+            throw new MalformedRequestException("Name or Date not found for the given UUID");
         }
         problemContext.setName(name);
         problemContext.setDate(date);
         return new ContextDisplayInfoDTO(problemContext.getUuid(), name, date);
     }
 
-    public boolean deleteContextDisplayInfo(UUID uuid) {
-        return ProblemContext.deleteContext(uuid) != null;
+    public ContextDisplayInfoDTO deleteContextDisplayInfo(UUID uuid) {
+        ProblemContext problemContext = ProblemContext.deleteContext(uuid);
+        if(problemContext == null) {
+            throw new NoSuchContextException("ProblemContext not found for the given UUID");
+        }
+        return ProblemContextMapper.problemContextToContextDisplayInfoDTOConverter(problemContext);
     }
 }

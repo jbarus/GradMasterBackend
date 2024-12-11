@@ -1,6 +1,7 @@
 package com.github.jbarus.gradmasterbackend.services;
 
 import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.MissingDataException;
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.NoSuchContextException;
 import com.github.jbarus.gradmasterbackend.mappers.ProblemContextMapper;
 import com.github.jbarus.gradmasterbackend.models.communication.CalculationStartStatus;
 import com.github.jbarus.gradmasterbackend.models.dto.ProblemDTO;
@@ -57,7 +58,7 @@ public class ProblemService {
     private ProblemContext getValidContext(UUID contextId) {
         ProblemContext context = ProblemContext.getInstance(contextId);
         if (context == null) {
-            throw new IllegalArgumentException("Invalid context ID: " + contextId);
+            throw new NoSuchContextException("Invalid context ID: " + contextId);
         }
         return context;
     }

@@ -1,8 +1,11 @@
 package com.github.jbarus.gradmasterbackend.controllers;
 
-import com.github.jbarus.gradmasterbackend.models.dto.RelationDTO;
+import com.github.jbarus.gradmasterbackend.exceptions.MalformedRequestException;
+import com.github.jbarus.gradmasterbackend.exceptions.NoSuchDataException;
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.NoSuchContextException;
 import com.github.jbarus.gradmasterbackend.services.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,22 +25,22 @@ public class RelationController {
 
     @PostMapping("/positive/{contextId}")
     public ResponseEntity<?> addPositiveRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.addPositiveRelation(contextId, relations));
+        return handleCreateRelationOperation(() -> relationService.addPositiveRelations(contextId, relations));
     }
 
     @PostMapping("/negative/{contextId}")
     public ResponseEntity<?> addNegativeRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.addNegativeRelation(contextId, relations));
+        return handleCreateRelationOperation(() -> relationService.addNegativeRelations(contextId, relations));
     }
 
-    @PutMapping("/positive/{contextId}")
+    @PatchMapping("/positive/{contextId}")
     public ResponseEntity<?> updatePositiveRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.updatePositiveRelation(contextId, relations));
+        return handleRelationOperation(() -> relationService.updatePositiveRelations(contextId, relations));
     }
 
-    @PutMapping("/negative/{contextId}")
+    @PatchMapping("/negative/{contextId}")
     public ResponseEntity<?> updateNegativeRelation(@PathVariable UUID contextId, @RequestBody List<UUID> relations) {
-        return handleRelationOperation(() -> relationService.updateNegativeRelation(contextId, relations));
+        return handleRelationOperation(() -> relationService.updateNegativeRelations(contextId, relations));
     }
 
     @GetMapping("/positive/{contextId}")
@@ -50,13 +53,36 @@ public class RelationController {
         return handleRelationOperation(() -> relationService.getNegativeRelations(contextId));
     }
 
+    @DeleteMapping("/positive/{contextId}")
+    public ResponseEntity<?> deletePositiveRelation(@PathVariable UUID contextId) {
+        return handleRelationOperation(()->relationService.deletePositiveRelations(contextId));
+    }
+
+    @DeleteMapping("/negative/{contextId}")
+    public ResponseEntity<?> deleteNegativeRelation(@PathVariable UUID contextId) {
+        return handleRelationOperation(()->relationService.deleteNegativeRelations(contextId));
+    }
+
     private ResponseEntity<?> handleRelationOperation(ServiceOperation operation) {
         try {
             return ResponseEntity.ok(operation.execute());
-        } catch (IllegalArgumentException e) {
+        }catch (NoSuchContextException | NoSuchDataException ex) {
+            return ResponseEntity.notFound().build();
+        }catch (MalformedRequestException e){
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An unexpected error occurred.");
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
+    }
+    private ResponseEntity<?> handleCreateRelationOperation(ServiceOperation operation) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(operation.execute());
+        }catch (NoSuchContextException | NoSuchDataException ex) {
+            return ResponseEntity.notFound().build();
+        }catch (MalformedRequestException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 

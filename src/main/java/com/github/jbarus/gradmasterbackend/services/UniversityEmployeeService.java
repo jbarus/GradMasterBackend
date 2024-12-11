@@ -1,22 +1,18 @@
 package com.github.jbarus.gradmasterbackend.services;
 
 import com.github.jbarus.gradmasterbackend.exceptions.*;
+import com.github.jbarus.gradmasterbackend.exceptions.calculationstart.NoSuchContextException;
 import com.github.jbarus.gradmasterbackend.mappers.UniversityEmployeeMapper;
-import com.github.jbarus.gradmasterbackend.models.Student;
 import com.github.jbarus.gradmasterbackend.models.UniversityEmployee;
-import com.github.jbarus.gradmasterbackend.models.communication.Response;
 import com.github.jbarus.gradmasterbackend.models.communication.UploadStatus;
 import com.github.jbarus.gradmasterbackend.models.dto.UniversityEmployeeDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.pipelines.UniversityEmployeeExtractionPipeline;
 import com.github.jbarus.gradmasterbackend.utils.XLSXUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,8 +66,11 @@ public class UniversityEmployeeService {
     public UniversityEmployeeDTO getUniversityEmployeeByContext(UUID id) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
 
-        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
-            throw new UninitializedContextException("No such context");
+        if(problemContext == null){
+            throw new NoSuchContextException("No such context");
+        }
+        if (problemContext.getUniversityEmployees() == null) {
+            throw new NoSuchDataException("No such data");
         }
 
         return UniversityEmployeeMapper.convertUniversityEmployeeListToUniversityEmployeeDTO(problemContext);
@@ -80,12 +79,15 @@ public class UniversityEmployeeService {
     public UniversityEmployeeDTO updateUniversityEmployeeByContext(UUID id, List<UniversityEmployee> updatedEmployees) {
         ProblemContext problemContext = ProblemContext.getInstance(id);
 
-        if (problemContext == null || problemContext.getUniversityEmployees() == null) {
-            throw new UninitializedContextException("No such context");
+        if(problemContext == null){
+            throw new NoSuchContextException("No such context");
+        }
+        if (problemContext.getUniversityEmployees() == null) {
+            throw new NoSuchDataException("No such data");
         }
         for (UniversityEmployee universityEmployee : updatedEmployees) {
             if(!problemContext.getUniversityEmployees().stream().map(UniversityEmployee::getId).toList().contains(universityEmployee.getId())) {
-                throw new BusinessLogicException(UploadStatus.UNAUTHORIZEDMODIFICATION);
+                throw new BusinessLogicException(UploadStatus.UNAUTHORIZED_MODIFICATION);
             }
         }
         problemContext.setUniversityEmployees(updatedEmployees);

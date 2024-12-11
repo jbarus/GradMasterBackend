@@ -10,10 +10,10 @@ public enum UploadStatus {
     INVALID_INPUT(2001, "Invalid input file format"),
     INVALID_CONTENT(2002, "File does not contain all necessary data"),
     PARSING_ERROR(2003, "Error parsing content of file"),
-    MULTIPLE_DATES(2004, "Multiple dates found"),
-    UNINITIALIZED_CONTEXT(2005, "Accessing uninitialized parts of context"),
-    INVALIDUPDATESEQUENCE(2006, "Wrong sequence of file upload"),
-    UNAUTHORIZEDMODIFICATION(2007, "Unauthorized modification"),
+    UNINITIALIZED_CONTEXT(2004, "Accessing uninitialized parts of context"),
+    NO_SUCH_CONTEXT(2005, "No such context"),
+    INVALID_UPDATE_SEQUENCE(2006, "Wrong sequence of file upload"),
+    UNAUTHORIZED_MODIFICATION(2007, "Unauthorized modification"),
     UNDEFINED(2008, "Undefined error");
 
     private final int statusCode;
