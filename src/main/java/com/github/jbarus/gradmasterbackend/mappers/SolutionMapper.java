@@ -5,17 +5,17 @@ import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.models.problem.Solution;
 import org.springframework.beans.factory.parsing.Problem;
 
+import java.util.UUID;
+
 public class SolutionMapper {
 
-    public static SolutionDTO convertSolutionToSolutionDTO(ProblemContext problemContext) {
+    public static SolutionDTO convertSolutionToSolutionDTOFromProblemContext(ProblemContext problemContext) {
         if (problemContext.getSolution() == null) {
             return null;
         }
         SolutionDTO solutionDTO = new SolutionDTO();
-        solutionDTO.setCommittees(problemContext.getSolution().getCommittees());
         solutionDTO.setId(problemContext.getUuid());
-        solutionDTO.setUnassignedStudents(problemContext.getSolution().getUnassignedStudents());
-        solutionDTO.setUnassignedUniversityEmployees(problemContext.getSolution().getUnassignedUniversityEmployees());
+        solutionDTO.setSolution(problemContext.getSolution());
         return solutionDTO;
     }
 
@@ -24,9 +24,19 @@ public class SolutionMapper {
             return null;
         }
         Solution solution = new Solution();
-        solution.setCommittees(solutionDTO.getCommittees());
-        solution.setUnassignedStudents(solutionDTO.getUnassignedStudents());
-        solution.setUnassignedUniversityEmployees(solutionDTO.getUnassignedUniversityEmployees());
+        solution.setCommittees(solutionDTO.getSolution().getCommittees());
+        solution.setUnassignedStudents(solutionDTO.getSolution().getUnassignedStudents());
+        solution.setUnassignedUniversityEmployees(solutionDTO.getSolution().getUnassignedUniversityEmployees());
         return solution;
+    }
+
+    public static SolutionDTO convertSolutionToSolutionDTO(UUID id, Solution solution) {
+        if (solution == null) {
+            return null;
+        }
+        SolutionDTO solutionDTO = new SolutionDTO();
+        solutionDTO.setId(id);
+        solutionDTO.setSolution(solution);
+        return solutionDTO;
     }
 }

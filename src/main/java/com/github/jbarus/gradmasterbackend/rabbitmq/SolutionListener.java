@@ -1,5 +1,6 @@
 package com.github.jbarus.gradmasterbackend.rabbitmq;
 
+import com.github.jbarus.gradmasterbackend.models.dto.CoreSolutionDTO;
 import com.github.jbarus.gradmasterbackend.models.dto.SolutionDTO;
 import com.github.jbarus.gradmasterbackend.models.problem.ProblemContext;
 import com.github.jbarus.gradmasterbackend.models.problem.Solution;
@@ -11,14 +12,12 @@ import java.util.ArrayList;
 @Component
 public class SolutionListener {
     @RabbitListener(queues = RabbitMQConfig.SOLUTION_QUEUE_NAME)
-    public void receiveMessage(SolutionDTO solutionDTO) {
-        System.out.println("Received SolutionDTO: " + solutionDTO);
-        System.out.println(solutionDTO.getCommittees());
-        System.out.println(solutionDTO.getUnassignedStudents());
-        ProblemContext problemContext = ProblemContext.getInstance(solutionDTO.getId());
+    public void receiveMessage(CoreSolutionDTO coreSolutionDTO) {
+        System.out.println("CoreSolutionDTO: " + coreSolutionDTO);
+        ProblemContext problemContext = ProblemContext.getInstance(coreSolutionDTO.getId());
         Solution solution = new Solution();
-        solution.setCommittees(solutionDTO.getCommittees());
-        solution.setUnassignedStudents(solutionDTO.getUnassignedStudents());
+        solution.setCommittees(coreSolutionDTO.getCommittees());
+        solution.setUnassignedStudents(coreSolutionDTO.getUnassignedStudents());
         solution.setUnassignedUniversityEmployees(new ArrayList<>());
         problemContext.setSolution(solution);
         problemContext.setInProgress(false);

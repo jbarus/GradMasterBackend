@@ -11,11 +11,7 @@ public class ProblemParametersMapper {
             return null;
         }
 
-        return new ProblemParameters(
-                dto.getCommitteeSize(),
-                dto.getMaxNumberOfNonHabilitatedEmployees(),
-                dto.getCalculationTimeInSeconds()
-        );
+        return dto.getProblemParameters();
     }
 
     public static ProblemParametersDTO convertProblemParametersToProblemParametersDTO(UUID contextId, ProblemParameters entity) {
@@ -23,11 +19,6 @@ public class ProblemParametersMapper {
             return null;
         }
 
-        return ProblemParametersDTO.builder()
-                .id(contextId)
-                .committeeSize(entity.getCommitteeSize())
-                .maxNumberOfNonHabilitatedEmployees(entity.getMaxNumberOfNonHabilitatedEmployees())
-                .calculationTimeInSeconds(entity.getCalculationTimeInSeconds())
-                .build();
+        return new ProblemParametersDTO(contextId,entity);
     }
 }

@@ -45,11 +45,4 @@ public class ProblemContextMapper {
     public static void SolutionDTOToProblemContextConverter(SolutionDTO solutionDTO, ProblemContext problemContext) {
         problemContext.setSolution(problemContext.getSolution());
     }
-
-    public static SolutionDTO problemContextToSolutionDTOConverter(ProblemContext problemContext) {
-        return SolutionDTO.builder()
-                .id(problemContext.getUuid())
-                .committees(problemContext.getSolution().getCommittees())
-                .build();
-    }
 }
